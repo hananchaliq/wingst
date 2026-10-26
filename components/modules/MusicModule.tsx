@@ -18,6 +18,7 @@ import {
   Repeat,
   Disc,
   Radio,
+  Waves,
 } from 'lucide-react';
 import {
   DisplayDensity,
@@ -44,6 +45,13 @@ const PROVIDER_LABELS: Record<MusicProviderId, string> = {
   apple_music: 'Apple Music Embed',
   soundcloud: 'SoundCloud Widget',
 };
+
+type AmbientFocusMode = 'off' | 'rain' | 'brown';
+
+// 7-bar resting profile matching Reference Image 3 (tall-mid-short-tall-short-mid-short)
+const RESTING_BAR_HEIGHTS = [0.76, 0.56, 0.34, 0.92, 0.42, 0.68, 0.38];
+const RHYTHM_DURATIONS = ['0.82s', '0.68s', '0.94s', '0.62s', '0.88s', '0.74s', '0.90s'];
+const RHYTHM_DELAYS = ['0ms', '140ms', '70ms', '210ms', '110ms', '250ms', '170ms'];
 
 function formatDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '00:00';
@@ -73,7 +81,20 @@ export default function MusicModule({
   const [isLooping, setIsLooping] = useState(false);
   const [uploadingTrack, setUploadingTrack] = useState(false);
 
+  // 7-Bar Audio Visualizer State (Web Audio API AnalyserNode for MP3 + Rhythmic for Spotify)
+  const [freqBars, setFreqBars] = useState<number[]>(RESTING_BAR_HEIGHTS);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const connectedAudioElRef = useRef<HTMLAudioElement | null>(null);
+
+  // Procedural Web Audio Ambient Focus Sound Generator ('off' | 'rain' | 'brown')
+  const [ambientMode, setAmbientMode] = useState<AmbientFocusMode>('off');
+  const ambientCtxRef = useRef<AudioContext | null>(null);
+  const ambientSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
   const activeTab = config.activeTab || 'spotify';
+  const visualizerEnabled = config.visualizerEnabled !== false;
   const localTracks = config.localTracks || [];
   const activeTrackId =
     config.activeLocalTrackId || (localTracks[0]?.id ?? null);
@@ -120,6 +141,162 @@ export default function MusicModule({
       }
     };
   }, [activeTrackId]);
+
+  // Real-time Web Audio API frequency sampling when playing Local MP3
+  useEffect(() => {
+    if (activeTab !== 'local_mp3' || !isPlaying || !visualizerEnabled) {
+      return;
+    }
+
+    const el = audioRef.current;
+    if (!el) return;
+
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      if (AudioCtx) {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioCtx();
+        }
+        const ctx = audioCtxRef.current;
+        if (ctx.state === 'suspended') {
+          void ctx.resume();
+        }
+        if (!analyserRef.current) {
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 64;
+          analyser.smoothingTimeConstant = 0.78;
+          analyserRef.current = analyser;
+        }
+        if (connectedAudioElRef.current !== el && analyserRef.current) {
+          try {
+            sourceNodeRef.current = ctx.createMediaElementSource(el);
+            sourceNodeRef.current.connect(analyserRef.current);
+            analyserRef.current.connect(ctx.destination);
+            connectedAudioElRef.current = el;
+          } catch {
+            // Element already bound
+          }
+        }
+      }
+    } catch {
+      // Fallback to rhythmic pulse if Web Audio API fails
+    }
+
+    const binData = new Uint8Array(32);
+    const interval = window.setInterval(() => {
+      if (document.hidden) return;
+      const analyser = analyserRef.current;
+      if (analyser) {
+        analyser.getByteFrequencyData(binData);
+        const indices = [1, 2, 4, 6, 9, 12, 16];
+        const nextBars = indices.map((idx, barIdx) => {
+          const raw = (binData[idx] || 0) / 255;
+          return Math.max(0.22, Math.min(1, raw * 0.9 + RESTING_BAR_HEIGHTS[barIdx] * 0.18));
+        });
+        setFreqBars(nextBars);
+      }
+    }, 45);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [activeTab, isPlaying, visualizerEnabled]);
+
+  // Procedural Web Audio Ambient Focus Sound Engine (Rain / Deep Brown Noise)
+  useEffect(() => {
+    if (ambientSourceRef.current) {
+      try {
+        ambientSourceRef.current.stop();
+        ambientSourceRef.current.disconnect();
+      } catch {
+        // Ignore
+      }
+      ambientSourceRef.current = null;
+    }
+
+    if (ambientMode === 'off') return;
+
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      if (!AudioCtx) return;
+
+      if (!ambientCtxRef.current) {
+        ambientCtxRef.current = new AudioCtx();
+      }
+      const ctx = ambientCtxRef.current;
+      if (ctx.state === 'suspended') {
+        void ctx.resume();
+      }
+
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+
+      if (ambientMode === 'brown') {
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + 0.02 * white) / 1.02;
+          lastOut = output[i];
+          output[i] *= 0.22;
+        }
+      } else {
+        // Soft Rain pink-filtered texture
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99765 * b0 + white * 0.099046;
+          b1 = 0.96300 * b1 + white * 0.2965164;
+          b2 = 0.57000 * b2 + white * 1.0526913;
+          output[i] = (b0 + b1 + b2 + white * 0.1848) * 0.03;
+        }
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = ambientMode === 'brown' ? 420 : 1350;
+
+      const gain = ctx.createGain();
+      gain.gain.value = 0.35;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(0);
+      ambientSourceRef.current = noise;
+    } catch {
+      // Ignore audio restriction errors
+    }
+
+    return () => {
+      if (ambientSourceRef.current) {
+        try {
+          ambientSourceRef.current.stop();
+          ambientSourceRef.current.disconnect();
+        } catch {
+          // Ignore
+        }
+        ambientSourceRef.current = null;
+      }
+    };
+  }, [ambientMode]);
+
+  const handleToggleVisualizer = () => {
+    onUpdate({
+      ...config,
+      visualizerEnabled: !visualizerEnabled,
+    });
+  };
 
   const handleSwitchTab = (tab: 'local_mp3' | 'spotify') => {
     setError(null);
@@ -274,9 +451,17 @@ export default function MusicModule({
     });
   };
 
+  // Determine whether the 7-bar capsule equalizer should animate
+  const isRhythmicSpotifyActive =
+    visualizerEnabled &&
+    ((activeTab === 'spotify' && Boolean(config.activeEmbedUrl)) ||
+      ambientMode !== 'off');
+  const isRealTimeMp3Active =
+    visualizerEnabled && activeTab === 'local_mp3' && isPlaying;
+
   return (
     <div className="flex h-full flex-col justify-between gap-3">
-      {/* Top Mode Switcher: Local MP3 vs Spotify Connect */}
+      {/* Top Mode Switcher + Reference Image 3 7-Bar Audio Visualizer */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-2.5">
         <div
           role="tablist"
@@ -319,8 +504,80 @@ export default function MusicModule({
           </button>
         </div>
 
-        {/* Right Contextual Actions */}
-        <div className="flex items-center gap-1.5">
+        {/* Center/Right: Compact 7-Bar Capsule Audio Visualizer (Reference Image 3) + Contextual Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 7-Bar Capsule Audio Equalizer + Square Toggle Button (Reference Image 3) */}
+          <div
+            data-testid="music-audio-visualizer"
+            data-visualizer-active={
+              isRealTimeMp3Active || isRhythmicSpotifyActive ? 'true' : 'false'
+            }
+            className="flex items-center gap-2 border border-[var(--border-subtle)] bg-[#0b0b0e]/90 px-2.5 py-1"
+            style={{ borderRadius: 'var(--radius-control)' }}
+            title={
+              visualizerEnabled
+                ? 'Audio Equalizer Aktif (Real-time MP3 / Ritmik Spotify)'
+                : 'Audio Equalizer Nonaktif'
+            }
+          >
+            <div
+              aria-hidden="true"
+              className="flex h-4 items-center gap-[3px]"
+            >
+              {RESTING_BAR_HEIGHTS.map((restingScale, idx) => {
+                const liveScale = isRealTimeMp3Active
+                  ? freqBars[idx] ?? restingScale
+                  : visualizerEnabled
+                  ? restingScale
+                  : 0.22;
+
+                return (
+                  <span
+                    key={idx}
+                    data-testid={`visualizer-bar-${idx}`}
+                    className={`w-[3px] rounded-full transition-transform duration-75 ${
+                      visualizerEnabled
+                        ? 'bg-white'
+                        : 'bg-zinc-600'
+                    }`}
+                    style={{
+                      height: '16px',
+                      transform: `scaleY(${liveScale})`,
+                      transformOrigin: 'center',
+                      animation: isRhythmicSpotifyActive
+                        ? `wingst-eq-bounce ${RHYTHM_DURATIONS[idx]} ease-in-out ${RHYTHM_DELAYS[idx]} infinite`
+                        : 'none',
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Square-rounded Toggle Button right beside the 7 bars (Reference Image 3) */}
+            <button
+              type="button"
+              data-testid="music-visualizer-toggle"
+              onClick={handleToggleVisualizer}
+              aria-pressed={visualizerEnabled}
+              aria-label={
+                visualizerEnabled
+                  ? 'Pause audio visualizer bars'
+                  : 'Activate audio visualizer bars'
+              }
+              title={
+                visualizerEnabled
+                  ? 'Matikan gerakan garis audio'
+                  : 'Hidupkan gerakan garis audio'
+              }
+              className={`h-4 w-4 shrink-0 border transition-colors ${
+                visualizerEnabled
+                  ? 'border-white/40 bg-zinc-400/80 hover:bg-white'
+                  : 'border-white/20 bg-zinc-800 hover:bg-zinc-700'
+              }`}
+              style={{ borderRadius: '4px' }}
+            />
+          </div>
+
           {activeTab === 'spotify' ? (
             <>
               <button
@@ -523,10 +780,29 @@ export default function MusicModule({
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-2 text-[10px] text-[var(--text-muted)]">
-            <span>
-              Spotify Web Embed · Paste any Spotify link or switch to Local MP3
-            </span>
+          {/* Bottom Bar: Ambient Focus Sound Synth + Open Spotify */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px] text-[var(--text-muted)]">
+            <div className="flex items-center gap-1.5">
+              <Waves className="h-3 w-3 text-[var(--accent-primary)]" />
+              <span>Ambient Focus:</span>
+              {(['off', 'rain', 'brown'] as AmbientFocusMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  data-testid={`ambient-btn-${mode}`}
+                  onClick={() => setAmbientMode(mode)}
+                  className={`border px-1.5 py-0.5 text-[10px] font-medium capitalize transition-colors ${
+                    ambientMode === mode
+                      ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                      : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  }`}
+                  style={{ borderRadius: '4px' }}
+                >
+                  {mode === 'off' ? 'Off' : mode === 'rain' ? 'Rain' : 'Brown Noise'}
+                </button>
+              ))}
+            </div>
+
             <a
               href="https://open.spotify.com"
               target="_blank"
@@ -581,7 +857,7 @@ export default function MusicModule({
                   Belum ada lagu MP3 lokal
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)]">
-                  Upload file MP3, WAV, OGG, M4A, atau FLAC Anda sendiri. Disimpan permanen di IndexedDB browser tanpa server.
+                  Upload file MP3, WAV, OGG, M4A, atau FLAC Anda sendiri. Disimpan permanen di IndexedDB browser & terhubung ke 7-Bar Audio Visualizer.
                 </p>
               </div>
               <label
@@ -786,11 +1062,33 @@ export default function MusicModule({
             </>
           )}
 
-          <div className="border-t border-[var(--border-subtle)] pt-2 text-[10px] text-[var(--text-muted)]">
-            Local MP3 Studio · Lagu disimpan secara lokal di IndexedDB browser Anda (hingga 40 MB per lagu).
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px] text-[var(--text-muted)]">
+            <span>
+              Local MP3 Studio · Web Audio Frequency Equalizer + IndexedDB
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Waves className="h-3 w-3 text-[var(--accent-primary)]" />
+              <span>Ambient:</span>
+              {(['off', 'rain', 'brown'] as AmbientFocusMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setAmbientMode(mode)}
+                  className={`border px-1.5 py-0.5 text-[10px] font-medium capitalize transition-colors ${
+                    ambientMode === mode
+                      ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                      : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                  }`}
+                  style={{ borderRadius: '4px' }}
+                >
+                  {mode === 'off' ? 'Off' : mode === 'rain' ? 'Rain' : 'Brown'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+

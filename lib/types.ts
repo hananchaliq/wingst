@@ -12,6 +12,7 @@ export interface LiquidOsConfig {
   blurPx: number; // 4 to 48
   opacity: number; // 0.12 to 0.90
   specularIntensity: number; // 0 to 1
+  liteMode?: boolean; // Low-GPU mode for potato/low-spec devices
 }
 
 export type ModuleId =
@@ -58,6 +59,7 @@ export interface BackgroundConfig {
   brightness: number; // 0.2 to 1.5
   heroHeight: number; // 320 to 900 (unobstructed showcase window height)
   fixedAttachment?: boolean; // Keep background locked on scroll
+  focusTarget?: string; // Daily focus intention displayed in Hero Canvas
 }
 
 export interface QuickLinkItem {
@@ -161,6 +163,7 @@ export interface MusicConfig {
   savedPlaylists: MusicSavedLink[];
   localTracks?: LocalAudioTrackMeta[];
   activeLocalTrackId?: string | null;
+  visualizerEnabled?: boolean;
 }
 
 export interface WeatherLocationConfig {

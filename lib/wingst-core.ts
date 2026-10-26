@@ -159,6 +159,7 @@ export function createDefaultConfig(now: Date = new Date()): WingstConfig {
         blurPx: 22,
         opacity: 0.62,
         specularIntensity: 0.45,
+        liteMode: false,
       },
     },
     background: {
@@ -172,6 +173,7 @@ export function createDefaultConfig(now: Date = new Date()): WingstConfig {
       brightness: 0.96,
       heroHeight: 460,
       fixedAttachment: true,
+      focusTarget: '',
     },
     layout: createDefaultLayout(),
     quickLinks: {
@@ -230,13 +232,14 @@ export function createDefaultConfig(now: Date = new Date()): WingstConfig {
       history: [],
     },
     music: {
-      activeTab: 'local_mp3',
+      activeTab: 'spotify',
       provider: 'spotify',
       activeEmbedUrl:
         'https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0',
       displayMode: 'expanded',
       localTracks: [],
       activeLocalTrackId: null,
+      visualizerEnabled: true,
       savedPlaylists: [
         {
           id: 'pl-lofi',
@@ -953,6 +956,8 @@ export function validateAndMigrateConfig(
           typeof rawLiquid.specularIntensity === 'number'
             ? Math.max(0, Math.min(1, rawLiquid.specularIntensity))
             : defaults.appearance.liquid.specularIntensity,
+        liteMode:
+          typeof rawLiquid.liteMode === 'boolean' ? rawLiquid.liteMode : false,
       },
     },
     background: {
@@ -991,6 +996,8 @@ export function validateAndMigrateConfig(
         typeof rawBg.fixedAttachment === 'boolean'
           ? rawBg.fixedAttachment
           : true,
+      focusTarget:
+        typeof rawBg.focusTarget === 'string' ? rawBg.focusTarget : '',
     },
     layout: mergedLayout,
     quickLinks: {

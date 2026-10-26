@@ -13,6 +13,7 @@ import {
   Trash2,
   Droplets,
   Navigation,
+  Zap,
 } from 'lucide-react';
 import {
   LiquidOsConfig,
@@ -38,6 +39,8 @@ interface HeaderProps {
   onToggleEditLayout: () => void;
   onOpenSettings: (initialTab?: string) => void;
   onOpenExtensionModal: () => void;
+  isPeekingCanvas?: boolean;
+  onTogglePeekCanvas?: () => void;
 }
 
 const LIQUID_MODES: {
@@ -69,6 +72,8 @@ export default function Header({
   onToggleEditLayout,
   onOpenSettings,
   onOpenExtensionModal,
+  isPeekingCanvas = false,
+  onTogglePeekCanvas,
 }: HeaderProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -221,9 +226,11 @@ export default function Header({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const activeLiquidLabel = liquidConfig.enabled
-    ? LIQUID_MODES.find((m) => m.id === liquidConfig.variant)?.label || 'Frosted'
-    : 'Off';
+  const activeLiquidLabel = !liquidConfig.enabled
+    ? 'Off'
+    : liquidConfig.liteMode
+    ? 'Lite'
+    : LIQUID_MODES.find((m) => m.id === liquidConfig.variant)?.label || 'Frosted';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[var(--bg-canvas)]/85 backdrop-blur-xl">
@@ -364,8 +371,8 @@ export default function Header({
             </div>
           </form>
 
-          {/* Search Suggestions & Local History Dropdown */}
-          {isFocused && (combinedItems.length > 0 || query.trim().length > 0) && (
+          {/* Search Suggestions, Quick Workspace Actions & Local History Dropdown */}
+          {isFocused && (
             <div className="wingst-elevated absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden shadow-2xl">
               {query.trim().length > 0 && (
                 <button
@@ -383,6 +390,73 @@ export default function Header({
                   <ArrowUpRight className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />
                 </button>
               )}
+
+              {/* Quick Workspace Commands Bar */}
+              <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-surface)]/50 px-3 py-2">
+                <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                  Quick Workspace Actions
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onUpdateLiquid({
+                        ...liquidConfig,
+                        enabled: true,
+                        liteMode: !liquidConfig.liteMode,
+                      });
+                      setIsFocused(false);
+                    }}
+                    className={`border px-2 py-1 text-[11px] font-medium transition-colors ${
+                      liquidConfig.liteMode
+                        ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                        : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    }`}
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    <Zap className="mr-1 inline h-3 w-3" />
+                    {liquidConfig.liteMode ? 'Lite Mode: ON' : 'Mode Ringan (Kentang)'}
+                  </button>
+
+                  {onTogglePeekCanvas && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onTogglePeekCanvas();
+                        setIsFocused(false);
+                      }}
+                      className="border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      style={{ borderRadius: 'var(--radius-control)' }}
+                    >
+                      {isPeekingCanvas ? 'Tampilkan Modul' : 'Lihat Full BG'}
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onTriggerGps();
+                      setIsFocused(false);
+                    }}
+                    className="border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    Sync GPS
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenSettings('appearance');
+                      setIsFocused(false);
+                    }}
+                    className="border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    Liquid OS Settings
+                  </button>
+                </div>
+              </div>
 
               {combinedItems.length > 0 && (
                 <div className="py-1">
@@ -511,7 +585,7 @@ export default function Header({
               <div
                 role="menu"
                 aria-label="Liquid OS Surface Modes"
-                className="wingst-elevated absolute right-0 top-full z-50 mt-1.5 w-72 p-3 shadow-2xl space-y-3 text-xs"
+                className="wingst-elevated absolute right-0 top-full z-50 mt-1.5 w-76 p-3 shadow-2xl space-y-3 text-xs"
               >
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
                   <div>
@@ -545,7 +619,9 @@ export default function Header({
                 <div className="grid grid-cols-3 gap-1.5">
                   {LIQUID_MODES.map((m) => {
                     const isSelected =
-                      liquidConfig.enabled && liquidConfig.variant === m.id;
+                      liquidConfig.enabled &&
+                      !liquidConfig.liteMode &&
+                      liquidConfig.variant === m.id;
                     return (
                       <button
                         key={m.id}
@@ -554,6 +630,7 @@ export default function Header({
                           onUpdateLiquid({
                             ...liquidConfig,
                             enabled: true,
+                            liteMode: false,
                             variant: m.id,
                           })
                         }
@@ -573,6 +650,41 @@ export default function Header({
                       </button>
                     );
                   })}
+                </div>
+
+                {/* Mode Ringan (Device Kentang / Lite GPU) Toggle */}
+                <div
+                  className="flex items-center justify-between gap-2 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/80 p-2"
+                  style={{ borderRadius: 'var(--radius-control)' }}
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1 font-semibold text-[var(--text-primary)]">
+                      <Zap className="h-3.5 w-3.5 text-[var(--accent-primary)] shrink-0" />
+                      <span>Mode Ringan (Device Kentang)</span>
+                    </div>
+                    <div className="text-[10px] text-[var(--text-muted)]">
+                      Hemat GPU & RAM tanpa multi-pass blur berat
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="liquid-lite-toggle"
+                    onClick={() =>
+                      onUpdateLiquid({
+                        ...liquidConfig,
+                        enabled: true,
+                        liteMode: !liquidConfig.liteMode,
+                      })
+                    }
+                    className={`border px-2.5 py-1 text-[11px] font-semibold shrink-0 transition-colors ${
+                      liquidConfig.liteMode
+                        ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                        : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                    }`}
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    {liquidConfig.liteMode ? 'AKTIF' : 'MATI'}
+                  </button>
                 </div>
 
                 {/* Quick Sliders for Blur & Opacity right in popover */}
@@ -596,6 +708,7 @@ export default function Header({
                         onUpdateLiquid({
                           ...liquidConfig,
                           enabled: true,
+                          liteMode: false,
                           blurPx: Number(e.target.value),
                         })
                       }

@@ -1,22 +1,15 @@
 import type { Metadata } from 'next';
-import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 
-const syne = Syne({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-mono',
@@ -50,10 +43,14 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
-      className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      data-liquid="frosted"
+      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning className="min-h-screen selection:bg-[var(--accent-primary)] selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen selection:bg-[var(--accent-primary)] selection:text-white"
+      >
         {children}
       </body>
     </html>

@@ -497,6 +497,7 @@ export default function SettingsModal({
                     {LIQUID_MODE_CARDS.map((card) => {
                       const isSelected =
                         config.appearance.liquid.enabled &&
+                        !config.appearance.liquid.liteMode &&
                         config.appearance.liquid.variant === card.id;
                       return (
                         <button
@@ -513,6 +514,7 @@ export default function SettingsModal({
                                   blurPx: card.defaultBlur,
                                   opacity: card.defaultOpacity,
                                   specularIntensity: card.defaultSpecular,
+                                  liteMode: false,
                                 },
                               },
                             })
@@ -545,6 +547,47 @@ export default function SettingsModal({
                         </button>
                       );
                     })}
+                  </div>
+
+                  {/* Mode Ringan (Device Kentang / Lite GPU) Card */}
+                  <div
+                    className="flex flex-wrap items-center justify-between gap-3 border border-[var(--border-subtle)] bg-[var(--bg-surface)]/80 p-3"
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    <div>
+                      <div className="font-semibold text-[var(--text-primary)]">
+                        Mode Ringan / Device Kentang (Lite GPU Performance)
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)]">
+                        Menonaktifkan multi-pass Gaussian blur & bayangan berat untuk menghemat GPU/RAM di laptop atau HP spesifikasi rendah sambil tetap mempertahankan estetika semi-transparan.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onUpdateConfig({
+                          ...config,
+                          appearance: {
+                            ...config.appearance,
+                            liquid: {
+                              ...config.appearance.liquid,
+                              enabled: true,
+                              liteMode: !config.appearance.liquid.liteMode,
+                            },
+                          },
+                        })
+                      }
+                      className={`border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        config.appearance.liquid.liteMode
+                          ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                          : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                      }`}
+                      style={{ borderRadius: 'var(--radius-control)' }}
+                    >
+                      {config.appearance.liquid.liteMode
+                        ? 'Mode Ringan: ON'
+                        : 'Mode Ringan: OFF'}
+                    </button>
                   </div>
 
                   {/* Liquid Parameter Sliders + Corner Radius */}

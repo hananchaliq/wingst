@@ -310,6 +310,17 @@ export default function MosaicWorkspace({
           const isBeingDraggedOver = dragOverId === mod.id && draggedId !== mod.id;
           const indexNumber = String(visualIdx + 1).padStart(2, '0');
 
+          const liquid = config.appearance.liquid;
+          const blurPx = Number.isFinite(liquid.blurPx) ? liquid.blurPx : 20;
+          const computedBackdropFilter =
+            !liquid.enabled || liquid.liteMode
+              ? 'none'
+              : liquid.variant === 'clear'
+              ? `blur(${Math.max(8, Math.round(blurPx * 0.65))}px) saturate(210%) contrast(106%)`
+              : liquid.variant === 'blur'
+              ? `blur(${Math.min(48, Math.round(blurPx * 1.35))}px) saturate(135%)`
+              : `blur(${blurPx}px) saturate(165%)`;
+
           return (
             <section
               key={mod.id}
@@ -356,6 +367,8 @@ export default function MosaicWorkspace({
                   : mod.minHeight
                   ? `${mod.minHeight}px`
                   : '280px',
+                backdropFilter: computedBackdropFilter,
+                WebkitBackdropFilter: computedBackdropFilter,
               }}
             >
               {/* Module Editorial Header */}

@@ -170,3 +170,37 @@ test('getFaviconSources extracts domain and builds multi-stage favicon URLs from
   assert.ok(sources.some((s) => s === 'https://github.com/favicon.ico'));
 });
 
+test('validateAndMigrateConfig preserves liteMode, focusTarget, and visualizerEnabled', () => {
+  const cfg = createDefaultConfig();
+  assert.equal(cfg.appearance.liquid.liteMode, false);
+  assert.equal(cfg.music.visualizerEnabled, true);
+  assert.equal(cfg.background.focusTarget, '');
+
+  const migrated = validateAndMigrateConfig({
+    ...cfg,
+    appearance: {
+      ...cfg.appearance,
+      liquid: {
+        ...cfg.appearance.liquid,
+        liteMode: true,
+      },
+    },
+    background: {
+      ...cfg.background,
+      focusTarget: 'Deploy Wingst ke Vercel dengan blur aktif',
+    },
+    music: {
+      ...cfg.music,
+      visualizerEnabled: false,
+    },
+  });
+  assert.equal(migrated.valid, true);
+  assert.equal(migrated.config.appearance.liquid.liteMode, true);
+  assert.equal(
+    migrated.config.background.focusTarget,
+    'Deploy Wingst ke Vercel dengan blur aktif'
+  );
+  assert.equal(migrated.config.music.visualizerEnabled, false);
+});
+
+

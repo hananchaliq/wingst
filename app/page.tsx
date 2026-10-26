@@ -65,10 +65,19 @@ export default function WingstPage() {
 
     applyResolvedTheme();
 
-    // Liquid OS 3-Mode Surface Engine
+    // Liquid OS 3-Mode Surface Engine + Lite Mode (Device Kentang)
     const liquid = config.appearance.liquid;
-    root.setAttribute('data-liquid', liquid.enabled ? liquid.variant : 'off');
-    root.style.setProperty('--liquid-blur', `${liquid.blurPx}px`);
+    const blurPx = Number.isFinite(liquid.blurPx) ? liquid.blurPx : 20;
+    const clearBlurPx = Math.max(8, Math.round(blurPx * 0.65));
+    const deepBlurPx = Math.min(48, Math.round(blurPx * 1.35));
+
+    root.setAttribute(
+      'data-liquid',
+      !liquid.enabled ? 'off' : liquid.liteMode ? 'lite' : liquid.variant
+    );
+    root.style.setProperty('--liquid-blur', `${blurPx}px`);
+    root.style.setProperty('--liquid-blur-clear', `${clearBlurPx}px`);
+    root.style.setProperty('--liquid-blur-blur', `${deepBlurPx}px`);
     root.style.setProperty('--liquid-opacity', `${liquid.opacity}`);
     root.style.setProperty('--liquid-specular', `${liquid.specularIntensity}`);
 
@@ -185,6 +194,8 @@ export default function WingstPage() {
         onToggleEditLayout={() => setIsEditingLayout((v) => !v)}
         onOpenSettings={openSettingsAt}
         onOpenExtensionModal={() => setExtensionModalOpen(true)}
+        isPeekingCanvas={isPeekingCanvas}
+        onTogglePeekCanvas={() => setIsPeekingCanvas((v) => !v)}
       />
 
       {/* Visible Storage / GPS Error Banner */}
@@ -211,6 +222,10 @@ export default function WingstPage() {
       {/* Fixed Stationary Background Layer + Unobstructed Hero Canvas Window */}
       <HeroCanvas
         background={config.background}
+        onUpdateBackground={(nextBg) =>
+          handleUpdateConfig({ ...config, background: nextBg })
+        }
+        liteMode={Boolean(config.appearance.liquid.liteMode)}
         locationCity={config.location.city}
         locationCountry={config.location.country}
         isSyncingGps={isSyncingGps}
@@ -222,10 +237,10 @@ export default function WingstPage() {
         onTogglePeekCanvas={() => setIsPeekingCanvas((v) => !v)}
       />
 
-      {/* Modular Mosaic Workspace (Hidden when Peeking Full Canvas) */}
+      {/* Modular Mosaic Workspace (No opacity/transform wrapper when visible so Liquid OS backdrop-filter samples fixed BG directly) */}
       <div
-        className={`relative z-10 flex-1 transition-opacity duration-300 ${
-          isPeekingCanvas ? 'pointer-events-none opacity-0 h-0 overflow-hidden' : 'opacity-100'
+        className={`relative z-10 flex-1 ${
+          isPeekingCanvas ? 'pointer-events-none opacity-0 h-0 overflow-hidden' : ''
         }`}
       >
         <MosaicWorkspace
