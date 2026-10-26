@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Wingst — Modular Personal Workspace & New Tab",
+  "short_name": "Wingst",
+  "version": "2.0.0",
+  "description": "Editorial, local-first personal browser workspace and customizable mosaic New Tab experience.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "optional_permissions": [
+    "geolocation"
+  ],
+  "host_permissions": [
+    "https://api.open-meteo.com/*",
+    "https://geocoding-api.open-meteo.com/*",
+    "https://api.frankfurter.dev/*",
+    "https://api.frankfurter.app/*",
+    "https://api.myquran.com/*",
+    "https://api.aladhan.com/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: https:; frame-src https://open.spotify.com https://www.youtube.com https://embed.music.apple.com https://w.soundcloud.com;"
+  }
+}

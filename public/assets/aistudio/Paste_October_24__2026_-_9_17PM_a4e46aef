@@ -1,0 +1,874 @@
+# WINGST — FINAL MASTER PROMPT
+## Product Redesign, Modular Mosaic Workspace & Chrome Extension
+
+## 01. MISSION
+
+Act as a senior product designer, creative developer, frontend architect, and Chrome Extension engineer.
+
+Transform the existing LumiList project into **Wingst**, an original, highly customizable personal browser workspace.
+
+This is a complete product evolution, not a superficial rebrand. Preserve existing working features, improve the visual identity, introduce a flexible mosaic layout engine, build comprehensive personalization settings, and deliver a functioning Chrome Extension.
+
+The final product must feel intentionally designed, technically sound, lightweight, and distinctive.
+
+Do not stop at a plan, mockup, or static prototype. Inspect the repository, implement the product, run it, test its functionality, and resolve issues.
+
+**Primary principle: Design with intention. Implement with evidence. Never fake functionality.**
+
+---
+
+## 02. BRAND AND ART DIRECTION
+
+Product name: Wingst.
+
+Product category: Personal browser workspace, productivity dashboard, and customizable New Tab experience.
+
+Brand characteristics:
+- Editorial, technical, independent, and precise.
+- Visually expressive without unnecessary decoration.
+- Functional and personal rather than corporate.
+- Minimal in appearance but rich in useful capabilities.
+
+### Visual reference
+
+Use the supplied AgentAI screenshot as inspiration for:
+- Deep black backgrounds.
+- Strong visual hierarchy.
+- Dramatic, large-scale imagery.
+- Restrained red accents.
+- Asymmetrical compositions.
+- Purposeful contrast between large visual areas and compact information panels.
+
+Do not copy its branding, assets, text, or exact composition.
+
+Translate its visual qualities into a distinct Wingst identity.
+
+### Initial design direction
+
+- Background: near-black and charcoal.
+- Primary accent: configurable vivid red.
+- Secondary colors: restrained neutrals.
+- Typography: expressive display typography paired with a highly readable interface font.
+- Icons: consistent, thin or medium-weight line icons.
+- Borders: subtle and deliberate.
+- Shadows: restrained and functional.
+- Motion: limited to meaningful transitions and interactions.
+
+The dark red palette is the starting theme, not a restriction.
+
+Support light, dark, and system themes.
+
+### Strict anti-AI-slop requirements
+
+Do not use:
+- Generic AI dashboard templates.
+- Purple-blue gradient aesthetics by default.
+- Glassmorphism on every component.
+- Repeated identical cards arranged in uniform rows.
+- Excessive glowing borders or blurred neon shadows.
+- Random decorative circles, floating blobs, or meaningless particles.
+- Unnecessary pill containers and badges.
+- Oversized marketing headings inside a productivity workspace.
+- Fake statistics, fabricated charts, or sample user activity.
+- Emoji as replacement interface icons.
+- Decorative buttons without working actions.
+- Generic placeholder branding or AI-generated stock-looking assets.
+- Animations that exist solely to make the interface appear sophisticated.
+
+Do not interpret anti-slop as simply removing gradients. Design the information hierarchy, spacing, typography, composition, and interactions deliberately.
+
+Every component must serve a clear purpose.
+
+The result must resemble a real, thoughtfully art-directed software product.
+
+---
+
+## 03. PRODUCT STRUCTURE
+
+Build three principal sections.
+
+### A. Global header
+
+Create a compact header containing:
+
+**Left**
+- Wingst wordmark.
+- Optional simple geometric brand symbol.
+- Clicking the brand returns to the main workspace.
+
+**Center**
+- Global search input.
+- Configurable search provider.
+- Keyboard shortcut support.
+- Search suggestions when supported.
+- Search history controls.
+- Clear-query action.
+
+**Right**
+- Settings button.
+- Optional meaningful status indicators.
+
+The header must remain visually quiet and compact.
+
+On mobile, reorganize its elements instead of shrinking everything into an unusable toolbar.
+
+### B. Immersive hero canvas
+
+Create a visual hero approximately 700 px tall on desktop as the initial default.
+
+This is an atmospheric workspace canvas, not a conventional marketing hero.
+
+Requirements:
+- User-selected background image.
+- Animated GIF support.
+- Looping MP4/WebM video support.
+- Remote media URLs.
+- Local uploads where technically supported.
+- Background positioning and sizing.
+- Adjustable overlay opacity and brightness.
+- Independent hero-height setting.
+- Media loading and error states.
+- Reduced-motion support.
+- Efficient media loading and playback.
+- A graceful fallback when media fails.
+
+**Default background: a static image.**
+
+Users can switch to GIF or looping video whenever they want.
+
+Do not automatically play audio. Video backgrounds must use appropriate muted autoplay settings and respect browser restrictions.
+
+Do not store large media files as base64 in localStorage. Use IndexedDB or another suitable local asset strategy where appropriate.
+
+Do not fill the hero with fabricated statistics, unnecessary slogans, or generic promotional content.
+
+Empty space is acceptable when it creates intentional visual breathing room.
+
+On mobile, reduce the hero height according to available screen space and usability.
+
+### C. Mosaic workspace
+
+Below the hero, create an independently customizable mosaic dashboard containing:
+
+1. Weather.
+2. Quick Links.
+3. Trading / Forex.
+4. Music.
+5. Daily Activity.
+6. Notepad.
+7. Prayer Times.
+
+The mosaic must use varied proportions and asymmetrical arrangements.
+
+Example composition:
+- A large weather module occupying several columns.
+- Quick Links beside a smaller trading module.
+- A music module spanning a wider area.
+- Daily Activity and Notepad arranged according to their content.
+- Prayer Times in a compact or expanded configuration.
+
+This is an example, not a fixed layout.
+
+Users must control the arrangement themselves.
+
+---
+
+## 04. MOSAIC LAYOUT ENGINE
+
+The mosaic layout system is a core product feature.
+
+Implement a responsive CSS Grid architecture with persistent, user-controlled module configurations.
+
+Each module should support:
+- Visibility.
+- Ordering.
+- Column span.
+- Row span.
+- Minimum dimensions.
+- Optional custom height.
+- Display density where appropriate.
+- Responsive positioning.
+
+### Required interactions
+
+- Drag-and-drop reordering.
+- Width and height adjustment.
+- Grid-span controls.
+- Show/hide controls.
+- Reset individual modules.
+- Reset the entire layout.
+- Save customized layouts.
+- Restore saved layouts after reload.
+- Edit layout through a dedicated editing mode.
+
+Provide keyboard-accessible alternatives to drag-and-drop.
+
+Normal dashboard interactions must not accidentally rearrange modules.
+
+### Responsive behavior
+
+**Desktop:** Multi-column mosaic with asymmetrical proportions.
+
+**Tablet:** Reduced column count with preserved visual hierarchy where possible.
+
+**Mobile:** Single-column or compact arrangements with readable content and sensible module ordering.
+
+Prevent overlapping modules, horizontal overflow, clipped controls, and broken charts.
+
+Persist layouts independently of module data.
+
+A layout migration must not delete user content.
+
+Use a maintained drag-and-drop library compatible with the existing stack when appropriate. Avoid fragile custom drag logic unless necessary.
+
+---
+
+## 05. MODULE FUNCTIONALITY
+
+### 5.1 Weather
+
+Implement:
+- Current temperature and condition.
+- Feels-like temperature when available.
+- Humidity and wind.
+- Hourly forecast.
+- Location selection.
+- Automatic location detection with appropriate permission.
+- Manual city search.
+- Configurable units where supported.
+- Last-updated timestamp.
+- Loading, offline, and error states.
+
+Preserve existing Open-Meteo integrations where applicable.
+
+Do not fabricate weather data when requests fail.
+
+### 5.2 Quick Links
+
+Implement complete shortcut management:
+- Add, edit, and delete links.
+- Reorder links.
+- Organize links into groups.
+- Configure names and URLs.
+- Choose icons or favicons.
+- Compact and expanded views.
+- Import and export configurations.
+- Choose current-tab or new-tab behavior.
+
+Provide a clean empty state.
+
+Do not populate the workspace with dozens of arbitrary defaults.
+
+Validate URLs and reject unsafe URL schemes.
+
+### 5.3 Trading / Forex
+
+Start with USD/IDR.
+
+Implement:
+- Latest available exchange rate.
+- Historical price chart.
+- Configurable chart timeframes.
+- Period changes where supported.
+- Relevant high/low metrics where available.
+- Source and last-updated information.
+- Loading, error, and unavailable states.
+
+Preserve existing forex integrations and historical-series behavior where possible.
+
+Charts must display actual API data, not invented numbers.
+
+Distinguish live, delayed, and cached data accurately.
+
+Do not imply indicative exchange rates are guaranteed executable trading prices.
+
+### 5.4 Music
+
+Use **official embeds as the default music integration**.
+
+Implement a provider-based architecture around legitimate embedded players and official music links.
+
+Depending on the selected provider, support:
+- Embedded playback.
+- Playlist links.
+- Favorite music links.
+- Compact and expanded display modes.
+- Current track information when exposed.
+- Playback controls only when supported.
+- Clear authentication requirements where applicable.
+
+Do not scrape protected services, bypass authentication, or falsely claim control over an embedded player.
+
+Do not build a custom audio-streaming backend.
+
+The music module must remain usable when no provider has been configured.
+
+Use official embedding mechanisms and respect provider restrictions.
+
+### 5.5 Daily Activity
+
+**The default daily activity list must be completely empty.**
+
+Do not generate example activities, fabricated progress, or fake historical data.
+
+Users create their own activity list in Settings.
+
+Implement:
+- Create, edit, rename, and delete activities.
+- Reorder activities.
+- Mark activities complete or incomplete.
+- Daily completion progress.
+- Historical completion records.
+- Historical charts based on actual records.
+- Date-based history views.
+- Export where appropriate.
+
+Reset the current day's checklist according to the user's local calendar day.
+
+Never erase historical completion records during a daily reset.
+
+Handle timezone changes and date boundaries correctly.
+
+If the user has no activities, display a restrained empty state with a shortcut to Settings.
+
+If no historical records exist, do not display a fake graph.
+
+### 5.6 Notepad
+
+Implement:
+- Create and edit notes.
+- Multiple notes.
+- Rename and delete.
+- Search notes.
+- Autosave.
+- Visible save status.
+- Optional basic formatting.
+- Import and export.
+- Local persistence.
+
+Prevent data loss during rapid editing, navigation, and reload.
+
+Use appropriate debouncing and save-state handling.
+
+No account is required.
+
+Clearly indicate that notes are stored locally and are not automatically synchronized between devices.
+
+### 5.7 Prayer Times
+
+Preserve existing MyQuran Kemenag integration and Aladhan fallback where appropriate.
+
+Implement:
+- The five daily prayer times.
+- Location selection.
+- Current or next prayer status.
+- Countdown to the next prayer.
+- Local date and time.
+- Source information.
+- Loading, error, and unavailable states.
+- Manual refresh.
+
+Do not fabricate prayer schedules if the configured sources fail.
+
+Distinguish the current prayer period from the next scheduled prayer.
+
+Avoid unnecessary intervals and memory leaks.
+
+---
+
+## 06. SETTINGS CENTER
+
+Build a comprehensive settings interface with clear sections, navigation, and searchable options where useful.
+
+### Appearance
+- Dark, light, and system themes.
+- Custom primary color.
+- Custom background color.
+- Surface and border colors where appropriate.
+- Text contrast safeguards.
+- Live preview.
+- Restore defaults.
+
+### Background
+- Solid color.
+- Static image.
+- Animated GIF.
+- Looping MP4/WebM.
+- Remote media URL.
+- Local upload where supported.
+- Position and sizing.
+- Overlay opacity.
+- Brightness.
+- Hero height.
+- Remove background.
+- Restore default background.
+
+Static images must be the default.
+
+Use IndexedDB or another appropriate mechanism for large local media. Do not store large files in localStorage.
+
+Explain any format, size, or platform limitations.
+
+### Workspace
+- Module visibility.
+- Module order.
+- Width and height.
+- Grid spans.
+- Display density.
+- Responsive layout.
+- Reset individual module.
+- Reset all modules.
+
+### Quick Links
+- CRUD management.
+- Group management.
+- Ordering.
+- Import/export.
+
+### Daily Activity
+- Create and manage activities.
+- Reorder activities.
+- View history.
+- Export activity data.
+- Reset current-day completion without deleting historical data.
+
+### Search
+- Select search provider.
+- Configure search behavior.
+- Clear individual history entries.
+- Clear all history.
+- Enable or disable history persistence.
+
+### Music
+- Configure official embed providers.
+- Manage playlists and links.
+- Disconnect or remove integrations where appropriate.
+
+### Weather and Location
+- Manual location.
+- Location permissions.
+- Units.
+- Refresh preferences where appropriate.
+
+### Data and Privacy
+- Export user configuration.
+- Import valid configurations.
+- Clear selected data categories.
+- Clear all local data with explicit confirmation.
+- Explain local storage and external API requests.
+
+Settings must change actual application behavior, not merely update visual switches.
+
+---
+
+## 07. SEARCH ENGINE CONFIGURATION
+
+Search providers must be configurable from Settings.
+
+Google may be the initial default, but users must be able to select another supported provider.
+
+Implement:
+- Provider selection.
+- Query submission.
+- Keyboard navigation.
+- Clear-query action.
+- Suggestions where supported.
+- Search-history management.
+- Configurable history persistence.
+- Loading and error states.
+
+Use a provider configuration system rather than hardcoding the search engine in the header.
+
+Use the selected provider's supported query URL or official API.
+
+Do not claim to provide universal web search when the application only forwards a query to a search engine.
+
+Do not collect or retain search history without respecting the user's settings.
+
+History must be clearable, and disabling persistence must prevent new history from being saved.
+
+Do not send unnecessary network requests while the user is typing.
+
+---
+
+## 08. LOCAL-FIRST DATA ARCHITECTURE
+
+**Wingst is local-first and requires no account.**
+
+This is a fixed product decision, not a temporary implementation shortcut.
+
+Core functionality must work without registration, mandatory authentication, or a remote user database.
+
+Persist locally:
+- Appearance preferences.
+- Theme and primary color.
+- Background settings.
+- Local background assets.
+- Mosaic layout.
+- Quick Links.
+- Daily activity definitions.
+- Daily completion history.
+- Notes.
+- Search preferences.
+- Search history when enabled.
+- Location preferences.
+- Music configuration.
+
+Use the appropriate storage mechanism for each type of data.
+
+Recommended division:
+- `localStorage` for small, simple website preferences.
+- IndexedDB for larger local assets and more substantial local records.
+- `chrome.storage.local` for extension-specific preferences and data.
+- `chrome.storage.sync` only for suitable small preferences if synchronization is explicitly introduced and appropriate.
+
+Never assume website storage is automatically shared with Chrome Extension storage.
+
+Do not introduce mandatory cloud synchronization.
+
+Do not upload private notes, activities, or browsing history to a remote service.
+
+External API requests must be limited to the data needed for the requested feature.
+
+Provide explicit export, import, and reset capabilities.
+
+Use versioned configuration data and migrations when settings change between application versions.
+
+Validate imported data before applying it.
+
+Prevent corrupted configuration from permanently breaking the dashboard.
+
+If a storage operation fails, report the issue clearly instead of silently discarding user data.
+
+---
+
+## 09. CHROME EXTENSION
+
+Build a genuine Chrome Extension using Manifest V3.
+
+The intended experience is a **Wingst New Tab replacement**.
+
+Do not merely add an installation button to the website.
+
+### Required functionality
+
+The extension should support:
+- Wingst branding.
+- New Tab override.
+- Global search.
+- Configurable search provider.
+- Themes and primary colors.
+- Static, GIF, and video backgrounds within extension constraints.
+- Mosaic layout customization.
+- Quick Links.
+- Daily Activity.
+- Notepad.
+- Weather.
+- Forex.
+- Prayer Times.
+- Official music embeds.
+- Persistent extension-specific settings.
+
+### Architecture
+
+Inspect the existing application and reuse its components and business logic wherever possible.
+
+Separate:
+- Shared React UI.
+- Theme and layout logic.
+- API clients.
+- Website-specific entry points.
+- Extension-specific entry points.
+- Storage adapters.
+- Extension service worker where necessary.
+
+Do not assume Next.js server-side functionality exists in a statically packaged extension.
+
+If the project uses Next.js, build a compatible extension target or a dedicated extension entry that reuses shared components.
+
+Avoid duplicating the entire application.
+
+### API compatibility
+
+Verify every external API integration inside the extension environment.
+
+Check:
+- CORS behavior.
+- HTTPS.
+- Provider authentication.
+- Rate limits.
+- API terms.
+- Host permissions.
+- Content Security Policy.
+- Network failure behavior.
+
+Do not expose secret credentials in publicly distributed extension files.
+
+Do not rely on arbitrary public CORS proxies.
+
+If an API requires server-side credentials, use an appropriate server-side endpoint or another valid integration strategy.
+
+Preserve existing API routes when possible.
+
+### Storage
+
+Website and extension data are separate by default.
+
+Use `chrome.storage.local` for extension-specific settings and data, with IndexedDB for larger assets where appropriate.
+
+If explicit cross-platform synchronization is added in the future, design it as a separate opt-in capability. Do not claim that local storage automatically synchronizes.
+
+### Packaging
+
+Deliver:
+- Valid `manifest.json`.
+- Required extension icons.
+- Correct New Tab configuration.
+- Working local extension build.
+- Build instructions.
+- Installation instructions.
+- Permission explanations.
+- Known limitations.
+
+Test the extension using Chrome's developer-mode installation process.
+
+Do not request unnecessary permissions.
+
+Do not use remotely hosted executable JavaScript or violate Manifest V3 requirements.
+
+---
+
+## 10. DESIGN TOKENS AND COMPONENT SYSTEM
+
+Create centralized CSS design tokens for:
+- Background.
+- Foreground.
+- Surface.
+- Elevated surface.
+- Primary accent.
+- Accent foreground.
+- Muted text.
+- Border.
+- Success, warning, and error states.
+- Focus ring.
+- Typography.
+- Spacing.
+- Radius.
+- Motion duration.
+
+Changing the primary color must update the entire application consistently.
+
+Support dark, light, and system themes.
+
+Preserve readable contrast in every theme.
+
+Avoid independently hardcoding the same colors throughout unrelated components.
+
+Create reusable module primitives, but allow individual modules to have different visual structures when their content requires it.
+
+Do not force every component into an identical card design.
+
+Respect reduced-motion preferences.
+
+---
+
+## 11. PERFORMANCE AND ACCESSIBILITY
+
+The dashboard must perform well on ordinary laptops and mobile devices.
+
+Requirements:
+- Lazy-load expensive modules where appropriate.
+- Optimize background media.
+- Avoid excessive rendering and unnecessary state updates.
+- Cache API responses responsibly.
+- Avoid excessive API polling.
+- Clean up timers, listeners, and observers.
+- Prevent memory leaks.
+- Handle offline states.
+- Prevent horizontal overflow.
+- Use semantic HTML.
+- Support keyboard navigation.
+- Provide visible focus states.
+- Label icon-only controls.
+- Maintain readable contrast.
+- Ensure charts remain responsive.
+- Avoid hydration mismatches.
+
+A slow API must not block the entire workspace.
+
+A failed background asset must not break the page.
+
+An empty module must look intentional without fabricating content.
+
+---
+
+## 12. REPOSITORY AUDIT AND IMPLEMENTATION
+
+Before changing code, inspect the existing repository.
+
+Determine:
+- Current framework and version.
+- Existing application structure.
+- Current routing.
+- Existing API endpoints.
+- Existing weather integration.
+- Existing forex integration.
+- Existing prayer-time integration.
+- Existing music functionality.
+- Existing search behavior.
+- Existing settings.
+- Existing storage.
+- Existing module components.
+- Dependencies.
+- Build configuration.
+- Deployment configuration.
+- Existing tests and known errors.
+
+The known development environment has used React, TypeScript, Tailwind CSS v4, and Next.js App Router, including a Next.js 16.4 configuration with Webpack.
+
+Verify the current repository before assuming those versions remain unchanged.
+
+Preserve the existing stack wherever practical.
+
+Do not migrate frameworks unnecessarily.
+
+Do not delete functioning features or replace real API integrations with hardcoded mock data.
+
+Maintain existing endpoint contracts unless a documented technical issue requires a change.
+
+### Implementation phases
+
+**Phase 1: Audit**
+Inspect the repository and establish a working baseline.
+
+**Phase 2: Brand system**
+Implement Wingst branding, typography, design tokens, colors, and interaction states.
+
+**Phase 3: Main interface**
+Build the header, immersive hero canvas, and mosaic workspace.
+
+**Phase 4: Layout engine**
+Implement reordering, resizing, grid spans, responsive layouts, and persistence.
+
+**Phase 5: Settings**
+Implement appearance, background, layout, search, Quick Links, Daily Activity, and data management.
+
+**Phase 6: Modules**
+Verify and implement all seven modules using real data and meaningful empty/error states.
+
+**Phase 7: Extension**
+Implement Manifest V3, New Tab behavior, storage adapters, API compatibility, and packaging.
+
+**Phase 8: Quality assurance**
+Run tests, type checks, linting, production builds, and extension installation checks.
+
+Fix issues discovered at every stage.
+
+Do not stop after producing a visually convincing interface.
+
+---
+
+## 13. ACCEPTANCE CRITERIA
+
+The project is complete only when the following are verified.
+
+### Visual
+- Wingst has its own identity.
+- The supplied screenshot informs the art direction without being copied.
+- The dashboard uses a deliberate asymmetrical mosaic.
+- No generic AI template patterns dominate the design.
+- All themes remain readable.
+
+### Settings
+- Primary color changes work and persist.
+- Theme changes work and persist.
+- Background image, GIF, and video modes function within supported environments.
+- Static image is the default background.
+- Layout changes persist after reload.
+- Quick Links and Daily Activity settings affect actual modules.
+- Search provider changes affect real search behavior.
+
+### Modules
+- Weather uses actual API data.
+- Forex charts use actual retrieved data.
+- Prayer times use actual provider data.
+- Music uses legitimate official embeds.
+- Notes persist locally.
+- Daily Activity starts empty.
+- Daily reset preserves historical data.
+- No chart displays fabricated history.
+
+### Local-first behavior
+- No account is required.
+- Core personal data remains local.
+- No automatic cloud synchronization is implied.
+- Import/export and data reset behave correctly.
+- Storage failures are handled visibly.
+
+### Extension
+- The extension builds successfully.
+- The manifest is valid.
+- The New Tab page loads.
+- Supported modules work in the extension.
+- Permissions are justified.
+- API access is verified.
+- User preferences persist.
+- No secrets are exposed in the package.
+- Installation instructions match the actual output.
+
+### Engineering
+- No dead buttons.
+- No fake functionality.
+- No unnecessary dependency additions.
+- No TypeScript errors.
+- No avoidable runtime errors.
+- No broken responsive layouts.
+- No destructive data resets.
+- No unrelated regressions.
+
+If a feature cannot be completed because of an external limitation, document the exact cause and implement the best valid alternative. Never claim an incomplete feature is finished.
+
+---
+
+## 14. FINAL DELIVERABLES
+
+Provide:
+1. A redesigned Wingst application.
+2. An original brand identity.
+3. A functional responsive mosaic layout editor.
+4. A comprehensive settings center.
+5. Theme, primary color, and background customization.
+6. Configurable search providers and history controls.
+7. Complete Quick Links management.
+8. Daily Activity with genuine historical data.
+9. A persistent local notepad.
+10. Verified weather, forex, and prayer-time integrations.
+11. Official music embeds.
+12. A functioning Chrome Extension package.
+13. Build and installation documentation.
+14. A list of modified files and important architectural decisions.
+15. Test results and remaining limitations.
+
+At completion, report:
+- What was implemented.
+- What existing functionality was preserved.
+- Which tests and builds passed.
+- How to install the extension.
+- Which external services or credentials remain necessary.
+- Any remaining limitations.
+
+## FINAL DIRECTIVE
+
+Do not attempt to build everything in one unverified burst.
+
+Inspect, implement, test, and refine incrementally.
+
+Do not replace working functionality just because rebuilding it is easier.
+
+Do not substitute mock data for real integrations.
+
+Do not ask for approval after every minor decision.
+
+Make reasonable engineering decisions, preserve existing user data, and document important trade-offs.
+
+**Wingst must be a real, local-first personal workspace with a distinctive editorial identity, a genuinely customizable mosaic layout, and a Chrome Extension that works. Not another AI-generated dashboard with a different logo.**

@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+:root,
+[data-theme="dark"] {
+  --bg-canvas: #08080b;
+  --bg-surface: #111116;
+  --bg-elevated: #181820;
+  --bg-glass: rgba(17, 17, 22, 0.78);
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --accent-primary: #e11d48;
+  --accent-foreground: #ffffff;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --focus-ring: #e11d48;
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --liquid-blur: 22px;
+  --liquid-opacity: 0.62;
+  --liquid-specular: 0.45;
+  --motion-duration: 160ms;
+}
+
+[data-theme="light"] {
+  --bg-canvas: #f5f5f7;
+  --bg-surface: #ffffff;
+  --bg-elevated: #eeeef2;
+  --bg-glass: rgba(255, 255, 255, 0.82);
+  --text-primary: #09090b;
+  --text-secondary: #3f3f46;
+  --text-muted: #71717a;
+  --border-subtle: rgba(9, 9, 11, 0.10);
+  --border-strong: rgba(9, 9, 11, 0.20);
+  --accent-primary: #e11d48;
+  --accent-foreground: #ffffff;
+  --status-success: #059669;
+  --status-warning: #d97706;
+  --status-error: #dc2626;
+  --focus-ring: #e11d48;
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --liquid-blur: 22px;
+  --liquid-opacity: 0.72;
+  --liquid-specular: 0.45;
+  --motion-duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display, "Syne", sans-serif);
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   WINGST SURFACE ENGINE — Editorial Matte (Off) + 3 Liquid OS Modes
+   1. Frosted (Concept) — Matte frosted diffusion with micro-grain & warm rim
+   2. Clear (iOS)       — High-refraction liquid glass with chromatic specular edge
+   3. Blur (One UI)     — Deep uniform Gaussian acrylic blur with satin surface
+   ============================================================================ */
+
+.wingst-surface {
+  position: relative;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    backdrop-filter 180ms ease;
+}
+
+/* Subtle crimson corner glow on Editorial Solid & Frosted cards (Reference Image 1) */
+[data-theme="dark"] .wingst-surface {
+  background-image: radial-gradient(
+    circle at 100% 0%,
+    rgba(225, 29, 72, 0.07) 0%,
+    transparent 52%
+  );
+}
+
+/* MODE 1: FROSTED (Concept) — Matte frosted glass with diffused luminance */
+[data-liquid="frosted"] .wingst-surface {
+  background-color: rgba(18, 18, 24, var(--liquid-opacity, 0.62));
+  background-image:
+    radial-gradient(
+      120% 90% at 15% 0%,
+      rgba(255, 255, 255, calc(0.11 * var(--liquid-specular, 0.45))) 0%,
+      rgba(225, 29, 72, 0.06) 48%,
+      transparent 100%
+    ),
+    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+  background-size: 100% 100%, 4px 4px;
+  backdrop-filter: blur(var(--liquid-blur, 22px)) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--liquid-blur, 22px)) saturate(145%);
+  border: 1px solid rgba(255, 255, 255, calc(0.14 + 0.18 * var(--liquid-specular, 0.45)));
+  box-shadow:
+    0 14px 36px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, calc(0.28 * var(--liquid-specular, 0.45)));
+}
+
+[data-theme="light"][data-liquid="frosted"] .wingst-surface {
+  background-color: rgba(255, 255, 255, var(--liquid-opacity, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 12px 32px -12px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+}
+
+/* MODE 2: CLEAR (iOS Liquid Glass) — High-refraction transparent glass with dual specular rim */
+[data-liquid="clear"] .wingst-surface {
+  background-color: rgba(12, 12, 16, calc(var(--liquid-opacity, 0.62) * 0.48));
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, calc(0.18 * var(--liquid-specular, 0.45))) 0%,
+    rgba(255, 255, 255, 0.02) 38%,
+    rgba(225, 29, 72, calc(0.12 * var(--liquid-specular, 0.45))) 100%
+  );
+  backdrop-filter: blur(calc(var(--liquid-blur, 22px) * 0.45)) saturate(200%) contrast(110%);
+  -webkit-backdrop-filter: blur(calc(var(--liquid-blur, 22px) * 0.45)) saturate(200%) contrast(110%);
+  border: 1px solid rgba(255, 255, 255, calc(0.22 + 0.28 * var(--liquid-specular, 0.45)));
+  box-shadow:
+    0 18px 42px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, calc(0.52 * var(--liquid-specular, 0.45))),
+    inset 0 -1px 2px 0 rgba(225, 29, 72, calc(0.28 * var(--liquid-specular, 0.45))),
+    inset 1px 0 1px 0 rgba(56, 189, 248, calc(0.14 * var(--liquid-specular, 0.45)));
+}
+
+[data-theme="light"][data-liquid="clear"] .wingst-surface {
+  background-color: rgba(255, 255, 255, calc(var(--liquid-opacity, 0.72) * 0.52));
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+/* MODE 3: BLUR (One UI) — Smooth deep Gaussian acrylic diffusion */
+[data-liquid="blur"] .wingst-surface {
+  background-color: rgba(22, 20, 26, calc(var(--liquid-opacity, 0.62) * 0.92));
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(225, 29, 72, 0.04) 100%
+  );
+  backdrop-filter: blur(calc(var(--liquid-blur, 22px) * 1.45)) brightness(1.04) saturate(130%);
+  -webkit-backdrop-filter: blur(calc(var(--liquid-blur, 22px) * 1.45)) brightness(1.04) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, calc(0.10 + 0.12 * var(--liquid-specular, 0.45)));
+  box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"][data-liquid="blur"] .wingst-surface {
+  background-color: rgba(250, 250, 252, calc(var(--liquid-opacity, 0.72) * 0.92));
+  border: 1px solid rgba(9, 9, 11, 0.08);
+}
+
+.wingst-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+}
+
+[data-liquid="frosted"] .wingst-elevated,
+[data-liquid="clear"] .wingst-elevated,
+[data-liquid="blur"] .wingst-elevated {
+  background-color: rgba(24, 24, 32, 0.68);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme="light"][data-liquid="frosted"] .wingst-elevated,
+[data-theme="light"][data-liquid="clear"] .wingst-elevated,
+[data-theme="light"][data-liquid="blur"] .wingst-elevated {
+  background-color: rgba(255, 255, 255, 0.78);
+}
+
+/* Editorial Crimson Gradient Bar (Reference Image 1: 51% — 2044 style) */
+.wingst-crimson-bar {
+  background: linear-gradient(
+    90deg,
+    var(--accent-primary) 0%,
+    rgba(190, 18, 60, 0.75) 55%,
+    rgba(136, 19, 55, 0.12) 100%
+  );
+}
+
+/* Subtle Editorial Dot Matrix Ornament (Reference Image 1 `::::` motif) */
+.wingst-dot-matrix {
+  background-image: radial-gradient(var(--accent-primary) 1.25px, transparent 1.25px);
+  background-size: 6px 6px;
+}
+
+.wingst-focus:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wingst — New Tab Workspace</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark"><span class="brand-dot"></span></span>
+      <span>WINGST</span>
+    </div>
+    <form id="search-form" class="search-bar">
+      <select id="search-provider" aria-label="Search provider">
+        <option value="google">Google</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="brave">Brave</option>
+        <option value="bing">Bing</option>
+      </select>
+      <input id="search-input" type="text" placeholder="Search the web..." aria-label="Search query" />
+      <button type="submit" class="btn btn-accent">Search</button>
+    </form>
+    <div>
+      <input type="color" id="accent-picker" value="#e11d48" title="Primary Accent Color" />
+      <button type="button" id="theme-toggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img id="hero-img" class="hero-bg" src="assets/wingst-default-hero.svg" alt="Wingst Hero Canvas" />
+    <div class="hero-scrim"></div>
+    <div class="hero-content">
+      <div>
+        <div style="font-size:11px;color:var(--text-secondary);">LOCAL WORKSPACE TIME</div>
+        <div id="hero-clock" class="clock">--:--:--</div>
+      </div>
+    </div>
+  </section>
+
+  <main class="mosaic" id="mosaic-grid">
+    <!-- 01 Weather -->
+    <section class="card" style="grid-column: span 5;">
+      <div class="card-title"><span>01. Weather & Atmosphere</span><span id="weather-city" class="mono">Jakarta</span></div>
+      <div id="weather-body" class="mono">Loading Open-Meteo telemetry...</div>
+    </section>
+
+    <!-- 02 Forex -->
+    <section class="card" style="grid-column: span 4;">
+      <div class="card-title"><span>02. Trading / Forex (USD/IDR)</span><span class="mono">ECB Reference</span></div>
+      <div id="forex-body" class="mono">Loading USD/IDR exchange rate...</div>
+    </section>
+
+    <!-- 03 Quick Links -->
+    <section class="card" style="grid-column: span 3;">
+      <div class="card-title"><span>03. Quick Links</span></div>
+      <div id="links-list"></div>
+      <form id="link-form" style="display:flex;gap:4px;">
+        <input id="link-title" placeholder="Title" style="width:35%;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);padding:4px;" />
+        <input id="link-url" placeholder="https://..." style="flex:1;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);padding:4px;" />
+        <button type="submit" class="btn btn-accent">+</button>
+      </form>
+    </section>
+
+    <!-- 04 Notepad -->
+    <section class="card" style="grid-column: span 7;">
+      <div class="card-title"><span>04. Local Notepad</span><span id="note-status" style="font-size:11px;color:var(--status-success);">Saved in chrome.storage.local</span></div>
+      <textarea id="notepad-area" rows="5" style="width:100%;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);padding:8px;" placeholder="Local extension notes..."></textarea>
+    </section>
+
+    <!-- 05 Daily Activity -->
+    <section class="card" style="grid-column: span 5;">
+      <div class="card-title"><span>05. Daily Activity</span><span id="activity-progress" class="mono">0/0</span></div>
+      <div id="activity-list" style="font-size:12px;color:var(--text-secondary);">No daily activities defined. Add one below.</div>
+      <form id="activity-form" style="display:flex;gap:4px;">
+        <input id="activity-input" placeholder="New daily activity..." style="flex:1;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);padding:4px;" />
+        <button type="submit" class="btn btn-accent">Add</button>
+      </form>
+    </section>
+
+    <!-- 06 Official Music Embed -->
+    <section class="card" style="grid-column: span 7;">
+      <div class="card-title"><span>06. Official Music Embed</span></div>
+      <iframe title="Spotify Official Embed" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </section>
+
+    <!-- 07 Prayer Times -->
+    <section class="card" style="grid-column: span 5;">
+      <div class="card-title"><span>07. Prayer Schedule</span><span class="mono">Kemenag / Aladhan</span></div>
+      <div id="prayer-body" class="mono">Loading daily prayer times...</div>
+    </section>
+  </main>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

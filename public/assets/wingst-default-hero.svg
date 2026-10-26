@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="obsidianBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060608" />
+      <stop offset="50%" stop-color="#0a0a0e" />
+      <stop offset="100%" stop-color="#050507" />
+    </linearGradient>
+
+    <!-- Top-Right Sculpted Crimson Sphere (Reference Image 1 motif) -->
+    <radialGradient id="crimsonSphereTR" cx="86%" cy="14%" r="42%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.52" />
+      <stop offset="38%" stop-color="#9f1239" stop-opacity="0.28" />
+      <stop offset="72%" stop-color="#4c0519" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#060608" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Bottom-Left Sculpted Crimson Sphere (Reference Image 1 motif) -->
+    <radialGradient id="crimsonSphereBL" cx="12%" cy="78%" r="46%">
+      <stop offset="0%" stop-color="#be123c" stop-opacity="0.44" />
+      <stop offset="45%" stop-color="#881337" stop-opacity="0.20" />
+      <stop offset="80%" stop-color="#4c0519" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#060608" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Vertical Crimson Pillar Gradient (Reference Image 1 Core Growth Pillars) -->
+    <linearGradient id="crimsonPillar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.02" />
+      <stop offset="55%" stop-color="#be123c" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#e11d48" stop-opacity="0.34" />
+    </linearGradient>
+
+    <linearGradient id="crimsonPillarInverse" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.30" />
+      <stop offset="60%" stop-color="#9f1239" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0.02" />
+    </linearGradient>
+
+    <pattern id="architecturalGrid" width="96" height="96" patternUnits="userSpaceOnUse">
+      <path d="M 96 0 L 0 0 0 96" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-opacity="0.03" />
+    </pattern>
+  </defs>
+
+  <!-- Base Obsidian Canvas -->
+  <rect width="1920" height="1080" fill="url(#obsidianBase)" />
+  <rect width="1920" height="1080" fill="url(#crimsonSphereTR)" />
+  <rect width="1920" height="1080" fill="url(#crimsonSphereBL)" />
+  <rect width="1920" height="1080" fill="url(#architecturalGrid)" />
+
+  <!-- Sculpted Atmospheric Crimson Arcs -->
+  <circle cx="1720" cy="110" r="390" fill="url(#crimsonSphereTR)" stroke="#f43f5e" stroke-opacity="0.12" stroke-width="1" />
+  <circle cx="190" cy="880" r="430" fill="url(#crimsonSphereBL)" stroke="#e11d48" stroke-opacity="0.10" stroke-width="1" />
+
+  <!-- Editorial Vertical Crimson Columns with Pin Nodes (Reference Image 1 middle slide) -->
+  <g transform="translate(1060, 110)">
+    <rect x="0" y="60" width="180" height="440" rx="8" fill="url(#crimsonPillar)" stroke="#f43f5e" stroke-opacity="0.14" stroke-width="1" />
+    <line x1="90" y1="90" x2="90" y2="330" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.2" />
+    <circle cx="90" cy="330" r="3.5" fill="#ffffff" />
+
+    <rect x="210" y="0" width="180" height="460" rx="8" fill="url(#crimsonPillarInverse)" stroke="#f43f5e" stroke-opacity="0.2" stroke-width="1" />
+    <line x1="300" y1="210" x2="300" y2="410" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.2" />
+    <circle cx="300" cy="210" r="3.5" fill="#ffffff" />
+
+    <rect x="420" y="60" width="180" height="440" rx="8" fill="url(#crimsonPillar)" stroke="#f43f5e" stroke-opacity="0.14" stroke-width="1" />
+    <line x1="510" y1="90" x2="510" y2="330" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.2" />
+    <circle cx="510" cy="330" r="3.5" fill="#ffffff" />
+  </g>
+
+  <!-- Top Editorial Hairline Rule -->
+  <line x1="96" y1="84" x2="1824" y2="84" stroke="#f43f5e" stroke-opacity="0.28" stroke-width="1" />
+
+  <!-- Editorial Dot-Matrix Ornament Top-Left (3x4 white dots like Reference Image 1) -->
+  <g fill="#ffffff" fill-opacity="0.72" transform="translate(116, 122)">
+    <circle cx="0" cy="0" r="2" /><circle cx="10" cy="0" r="2" /><circle cx="20" cy="0" r="2" /><circle cx="30" cy="0" r="2" />
+    <circle cx="0" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="20" cy="10" r="2" /><circle cx="30" cy="10" r="2" />
+    <circle cx="0" cy="20" r="2" /><circle cx="10" cy="20" r="2" /><circle cx="20" cy="20" r="2" /><circle cx="30" cy="20" r="2" />
+  </g>
+
+  <!-- Crimson Dot-Matrix Ornament Center-Left (4x6 crimson dots like Reference Image 1) -->
+  <g fill="#e11d48" fill-opacity="0.55" transform="translate(520, 320)">
+    <circle cx="0" cy="0" r="2" /><circle cx="10" cy="0" r="2" /><circle cx="20" cy="0" r="2" /><circle cx="30" cy="0" r="2" /><circle cx="40" cy="0" r="2" /><circle cx="50" cy="0" r="2" />
+    <circle cx="0" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="20" cy="10" r="2" /><circle cx="30" cy="10" r="2" /><circle cx="40" cy="10" r="2" /><circle cx="50" cy="10" r="2" />
+    <circle cx="0" cy="20" r="2" /><circle cx="10" cy="20" r="2" /><circle cx="20" cy="20" r="2" /><circle cx="30" cy="20" r="2" /><circle cx="40" cy="20" r="2" /><circle cx="50" cy="20" r="2" />
+  </g>
+
+  <!-- Bottom-Right Dot-Matrix Ornament -->
+  <g fill="#ffffff" fill-opacity="0.35" transform="translate(1740, 490)">
+    <circle cx="0" cy="0" r="1.8" /><circle cx="9" cy="0" r="1.8" /><circle cx="18" cy="0" r="1.8" /><circle cx="27" cy="0" r="1.8" />
+    <circle cx="0" cy="9" r="1.8" /><circle cx="9" cy="9" r="1.8" /><circle cx="18" cy="9" r="1.8" /><circle cx="27" cy="9" r="1.8" />
+    <circle cx="0" cy="18" r="1.8" /><circle cx="9" cy="18" r="1.8" /><circle cx="18" cy="18" r="1.8" /><circle cx="27" cy="18" r="1.8" />
+    <circle cx="0" cy="27" r="1.8" /><circle cx="9" cy="27" r="1.8" /><circle cx="18" cy="27" r="1.8" /><circle cx="27" cy="27" r="1.8" />
+  </g>
+</svg>

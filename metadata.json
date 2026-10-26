@@ -1,0 +1,8 @@
+{
+  "name": "Wingst",
+  "description": "An editorial, local-first personal browser workspace, customizable mosaic dashboard, and Chrome New Tab experience.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070709" />
+      <stop offset="45%" stop-color="#0d0d11" />
+      <stop offset="100%" stop-color="#050507" />
+    </linearGradient>
+    <radialGradient id="crimsonGlow" cx="72%" cy="38%" r="48%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.28" />
+      <stop offset="45%" stop-color="#9f1239" stop-opacity="0.09" />
+      <stop offset="100%" stop-color="#070709" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="warmHighlight" cx="24%" cy="68%" r="40%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.12" />
+      <stop offset="60%" stop-color="#18181b" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#070709" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#27272a" stop-opacity="0.55" />
+      <stop offset="50%" stop-color="#18181b" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="redEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#881337" stop-opacity="0.1" />
+    </linearGradient>
+    <pattern id="editorialGrid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-opacity="0.035" />
+    </pattern>
+    <pattern id="fineGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#ffffff" stroke-width="0.4" stroke-opacity="0.015" />
+    </pattern>
+  </defs>
+
+  <!-- Base Canvas -->
+  <rect width="1920" height="1080" fill="url(#bgGrad)" />
+  <rect width="1920" height="1080" fill="url(#crimsonGlow)" />
+  <rect width="1920" height="1080" fill="url(#warmHighlight)" />
+  <rect width="1920" height="1080" fill="url(#fineGrid)" />
+  <rect width="1920" height="1080" fill="url(#editorialGrid)" />
+
+  <!-- Architectural Brutalist Planes -->
+  <g transform="translate(980, -60)">
+    <polygon points="180,0 520,0 320,1200 -20,1200" fill="url(#bladeGrad)" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+    <polygon points="440,0 690,0 490,1200 240,1200" fill="url(#bladeGrad)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1" />
+    <line x1="180" y1="0" x2="-20" y2="1200" stroke="url(#redEdge)" stroke-width="2" />
+    <line x1="440" y1="0" x2="240" y2="1200" stroke="#e11d48" stroke-opacity="0.35" stroke-width="1.2" />
+  </g>
+
+  <!-- Precision Geometric Meridian Rings -->
+  <g transform="translate(1360, 420)">
+    <circle cx="0" cy="0" r="340" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+    <circle cx="0" cy="0" r="240" fill="none" stroke="#e11d48" stroke-opacity="0.28" stroke-width="1.5" stroke-dasharray="8 6" />
+    <circle cx="0" cy="0" r="140" fill="none" stroke="#ffffff" stroke-opacity="0.09" stroke-width="1" />
+    <line x1="-420" y1="0" x2="420" y2="0" stroke="#ffffff" stroke-opacity="0.07" stroke-width="1" />
+    <line x1="0" y1="-420" x2="0" y2="420" stroke="#ffffff" stroke-opacity="0.07" stroke-width="1" />
+    <circle cx="0" cy="0" r="5" fill="#e11d48" />
+  </g>
+
+  <!-- Editorial Horizon Rule & Crosshairs -->
+  <line x1="0" y1="760" x2="1920" y2="760" stroke="#ffffff" stroke-opacity="0.07" stroke-width="1" />
+  <g stroke="#e11d48" stroke-opacity="0.5" stroke-width="1.2">
+    <path d="M 152 240 L 168 240 M 160 232 L 160 248" />
+    <path d="M 632 240 L 648 240 M 640 232 L 640 248" />
+    <path d="M 152 760 L 168 760 M 160 752 L 160 768" />
+    <path d="M 1352 760 L 1368 760 M 1360 752 L 1360 768" />
+  </g>
+</svg>
