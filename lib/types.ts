@@ -41,6 +41,7 @@ export interface ModuleLayoutConfig {
 export interface AppearanceConfig {
   theme: ThemeMode;
   primaryColor: string;
+  autoExtractAccent?: boolean; // Automatically match primaryColor to dominant wallpaper color
   customBgColor: string | null;
   customSurfaceColor: string | null;
   customBorderColor: string | null;

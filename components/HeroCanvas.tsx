@@ -31,6 +31,7 @@ interface HeroCanvasProps {
   isEditingLayout: boolean;
   isPeekingCanvas?: boolean;
   onTogglePeekCanvas?: () => void;
+  onResolvedMediaUrl?: (url: string) => void;
 }
 
 type PomodoroPhase = 'focus' | 'short_break' | 'long_break';
@@ -81,6 +82,7 @@ export default function HeroCanvas({
   isEditingLayout,
   isPeekingCanvas = false,
   onTogglePeekCanvas,
+  onResolvedMediaUrl,
 }: HeroCanvasProps) {
   const [resolvedUrl, setResolvedUrl] = useState<string>(
     background.mediaUrl || DEFAULT_HERO_IMAGE
@@ -171,18 +173,22 @@ export default function HeroCanvas({
         if (res.objectUrl) {
           activeObjectUrl = res.objectUrl;
           setResolvedUrl(res.objectUrl);
+          onResolvedMediaUrl?.(res.objectUrl);
           return;
         } else {
           setMediaError(
             res.error || 'Local background file missing from IndexedDB. Showing default canvas.'
           );
           setResolvedUrl(DEFAULT_HERO_IMAGE);
+          onResolvedMediaUrl?.(DEFAULT_HERO_IMAGE);
           return;
         }
       }
 
       setIsLoadingMedia(false);
-      setResolvedUrl(background.mediaUrl || DEFAULT_HERO_IMAGE);
+      const nextUrl = background.mediaUrl || DEFAULT_HERO_IMAGE;
+      setResolvedUrl(nextUrl);
+      onResolvedMediaUrl?.(nextUrl);
     }
 
     resolveSource();
@@ -193,7 +199,7 @@ export default function HeroCanvas({
         URL.revokeObjectURL(activeObjectUrl);
       }
     };
-  }, [background.type, background.mediaUrl, background.localAssetId]);
+  }, [background.type, background.mediaUrl, background.localAssetId, onResolvedMediaUrl]);
 
   const toggleVideoPlayback = () => {
     if (!videoRef.current) return;
@@ -286,10 +292,152 @@ export default function HeroCanvas({
               className={`h-full w-full ${objectFitClass}`}
               style={{ objectPosition: background.position || 'center' }}
             />
+          ) : background.type !== 'solid' &&
+            (mediaError || resolvedUrl === DEFAULT_HERO_IMAGE) ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1920 1080"
+              preserveAspectRatio="xMidYMid slice"
+              data-testid="default-dynamic-hero-svg"
+              className={`h-full w-full ${objectFitClass}`}
+            >
+              <defs>
+                <linearGradient id="obsidianBase" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#060608" />
+                  <stop offset="50%" stopColor="#0a0a0e" />
+                  <stop offset="100%" stopColor="#050507" />
+                </linearGradient>
+
+                <radialGradient id="accentSphereTR" cx="86%" cy="14%" r="42%">
+                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.52" />
+                  <stop offset="38%" stopColor="var(--accent-primary)" stopOpacity="0.26" />
+                  <stop offset="72%" stopColor="var(--accent-primary)" stopOpacity="0.08" />
+                  <stop offset="100%" stopColor="#060608" stopOpacity="0" />
+                </radialGradient>
+
+                <radialGradient id="accentSphereBL" cx="12%" cy="78%" r="46%">
+                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.44" />
+                  <stop offset="45%" stopColor="var(--accent-primary)" stopOpacity="0.20" />
+                  <stop offset="80%" stopColor="var(--accent-primary)" stopOpacity="0.05" />
+                  <stop offset="100%" stopColor="#060608" stopOpacity="0" />
+                </radialGradient>
+
+                <linearGradient id="accentPillar" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.02" />
+                  <stop offset="55%" stopColor="var(--accent-primary)" stopOpacity="0.16" />
+                  <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.34" />
+                </linearGradient>
+
+                <linearGradient id="accentPillarInverse" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.30" />
+                  <stop offset="60%" stopColor="var(--accent-primary)" stopOpacity="0.12" />
+                  <stop offset="100%" stopColor="#09090b" stopOpacity="0.02" />
+                </linearGradient>
+
+                <pattern id="architecturalGrid" width="96" height="96" patternUnits="userSpaceOnUse">
+                  <path
+                    d="M 96 0 L 0 0 0 96"
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeWidth="0.6"
+                    strokeOpacity="0.03"
+                  />
+                </pattern>
+              </defs>
+
+              <rect width="1920" height="1080" fill="url(#obsidianBase)" />
+              <rect width="1920" height="1080" fill="url(#accentSphereTR)" />
+              <rect width="1920" height="1080" fill="url(#accentSphereBL)" />
+              <rect width="1920" height="1080" fill="url(#architecturalGrid)" />
+
+              <circle
+                cx="1720"
+                cy="110"
+                r="390"
+                fill="url(#accentSphereTR)"
+                stroke="var(--accent-primary)"
+                strokeOpacity="0.14"
+                strokeWidth="1"
+              />
+              <circle
+                cx="190"
+                cy="880"
+                r="430"
+                fill="url(#accentSphereBL)"
+                stroke="var(--accent-primary)"
+                strokeOpacity="0.12"
+                strokeWidth="1"
+              />
+
+              <g transform="translate(1060, 110)">
+                <rect
+                  x="0"
+                  y="60"
+                  width="180"
+                  height="440"
+                  rx="8"
+                  fill="url(#accentPillar)"
+                  stroke="var(--accent-primary)"
+                  strokeOpacity="0.16"
+                  strokeWidth="1"
+                />
+                <line x1="90" y1="90" x2="90" y2="330" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="1.2" />
+                <circle cx="90" cy="330" r="3.5" fill="#ffffff" />
+
+                <rect
+                  x="210"
+                  y="0"
+                  width="180"
+                  height="460"
+                  rx="8"
+                  fill="url(#accentPillarInverse)"
+                  stroke="var(--accent-primary)"
+                  strokeOpacity="0.22"
+                  strokeWidth="1"
+                />
+                <line x1="300" y1="210" x2="300" y2="410" stroke="#ffffff" strokeOpacity="0.5" strokeWidth="1.2" />
+                <circle cx="300" cy="210" r="3.5" fill="#ffffff" />
+
+                <rect
+                  x="420"
+                  y="60"
+                  width="180"
+                  height="440"
+                  rx="8"
+                  fill="url(#accentPillar)"
+                  stroke="var(--accent-primary)"
+                  strokeOpacity="0.16"
+                  strokeWidth="1"
+                />
+                <line x1="510" y1="90" x2="510" y2="330" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="1.2" />
+                <circle cx="510" cy="330" r="3.5" fill="#ffffff" />
+              </g>
+
+              <line x1="96" y1="84" x2="1824" y2="84" stroke="var(--accent-primary)" strokeOpacity="0.28" strokeWidth="1" />
+
+              <g fill="#ffffff" fillOpacity="0.72" transform="translate(116, 122)">
+                <circle cx="0" cy="0" r="2" /><circle cx="10" cy="0" r="2" /><circle cx="20" cy="0" r="2" /><circle cx="30" cy="0" r="2" />
+                <circle cx="0" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="20" cy="10" r="2" /><circle cx="30" cy="10" r="2" />
+                <circle cx="0" cy="20" r="2" /><circle cx="10" cy="20" r="2" /><circle cx="20" cy="20" r="2" /><circle cx="30" cy="20" r="2" />
+              </g>
+
+              <g fill="var(--accent-primary)" fillOpacity="0.55" transform="translate(520, 320)">
+                <circle cx="0" cy="0" r="2" /><circle cx="10" cy="0" r="2" /><circle cx="20" cy="0" r="2" /><circle cx="30" cy="0" r="2" /><circle cx="40" cy="0" r="2" /><circle cx="50" cy="0" r="2" />
+                <circle cx="0" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="20" cy="10" r="2" /><circle cx="30" cy="10" r="2" /><circle cx="40" cy="10" r="2" /><circle cx="50" cy="10" r="2" />
+                <circle cx="0" cy="20" r="2" /><circle cx="10" cy="20" r="2" /><circle cx="20" cy="20" r="2" /><circle cx="30" cy="20" r="2" /><circle cx="40" cy="20" r="2" /><circle cx="50" cy="20" r="2" />
+              </g>
+
+              <g fill="#ffffff" fillOpacity="0.35" transform="translate(1740, 490)">
+                <circle cx="0" cy="0" r="1.8" /><circle cx="9" cy="0" r="1.8" /><circle cx="18" cy="0" r="1.8" /><circle cx="27" cy="0" r="1.8" />
+                <circle cx="0" cy="9" r="1.8" /><circle cx="9" cy="9" r="1.8" /><circle cx="18" cy="9" r="1.8" /><circle cx="27" cy="9" r="1.8" />
+                <circle cx="0" cy="18" r="1.8" /><circle cx="9" cy="18" r="1.8" /><circle cx="18" cy="18" r="1.8" /><circle cx="27" cy="18" r="1.8" />
+                <circle cx="0" cy="27" r="1.8" /><circle cx="9" cy="27" r="1.8" /><circle cx="18" cy="27" r="1.8" /><circle cx="27" cy="27" r="1.8" />
+              </g>
+            </svg>
           ) : background.type !== 'solid' ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={mediaError ? DEFAULT_HERO_IMAGE : resolvedUrl}
+              src={resolvedUrl}
               alt="Wingst atmospheric workspace canvas"
               referrerPolicy="no-referrer"
               onError={() => {
@@ -298,6 +446,7 @@ export default function HeroCanvas({
                     'Selected background image failed to load. Showing default architectural canvas.'
                   );
                   setResolvedUrl(DEFAULT_HERO_IMAGE);
+                  onResolvedMediaUrl?.(DEFAULT_HERO_IMAGE);
                 }
               }}
               className={`h-full w-full ${objectFitClass}`}
@@ -306,7 +455,7 @@ export default function HeroCanvas({
           ) : null}
         </div>
 
-        {/* Adjustable Contrast Scrim & Subtle Editorial Crimson Vignette */}
+        {/* Adjustable Contrast Scrim & Dynamic Primary Accent Vignette */}
         <div
           className="absolute inset-0 transition-opacity"
           style={{
@@ -314,10 +463,11 @@ export default function HeroCanvas({
           }}
         />
         <div
+          data-testid="hero-accent-vignette"
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(circle at 88% 12%, rgba(225, 29, 72, 0.16) 0%, transparent 45%), radial-gradient(circle at 10% 85%, rgba(159, 18, 57, 0.14) 0%, transparent 50%)',
+              'radial-gradient(circle at 88% 12%, rgba(var(--accent-rgb, 225, 29, 72), 0.18) 0%, transparent 45%), radial-gradient(circle at 10% 85%, rgba(var(--accent-rgb, 225, 29, 72), 0.14) 0%, transparent 50%)',
           }}
         />
       </div>

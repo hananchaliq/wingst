@@ -11,6 +11,225 @@ import {
 export const WINGST_CONFIG_VERSION = 2;
 export const DEFAULT_HERO_IMAGE = '/assets/wingst-default-hero.svg';
 
+export const ACCENT_PRESETS: { name: string; hex: string }[] = [
+  { name: 'Wingst Crimson', hex: '#e11d48' },
+  { name: 'Signal Vermilion', hex: '#ea580c' },
+  { name: 'Cobalt Precision', hex: '#2563eb' },
+  { name: 'Cyan Telemetry', hex: '#0284c7' },
+  { name: 'Emerald Field', hex: '#059669' },
+  { name: 'Violet Pulse', hex: '#7c3aed' },
+  { name: 'Amber Gold', hex: '#d97706' },
+];
+
+/**
+ * Converts a hex color (#rgb or #rrggbb) into comma-separated RGB channels (e.g. "225, 29, 72")
+ * so CSS `rgba(var(--accent-rgb), <alpha>)` rules can dynamically tint surfaces and vignettes.
+ */
+export function hexToRgbChannels(hex: string): string {
+  const cleaned = (hex || '').trim().replace(/^#/, '');
+  if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
+    const r = parseInt(cleaned[0] + cleaned[0], 16);
+    const g = parseInt(cleaned[1] + cleaned[1], 16);
+    const b = parseInt(cleaned[2] + cleaned[2], 16);
+    return `${r}, ${g}, ${b}`;
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(cleaned)) {
+    const r = parseInt(cleaned.slice(0, 2), 16);
+    const g = parseInt(cleaned.slice(2, 4), 16);
+    const b = parseInt(cleaned.slice(4, 6), 16);
+    return `${r}, ${g}, ${b}`;
+  }
+  return '225, 29, 72';
+}
+
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn:
+        h = (gn - bn) / d + (gn < bn ? 6 : 0);
+        break;
+      case gn:
+        h = (bn - rn) / d + 2;
+        break;
+      case bn:
+        h = (rn - gn) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+  return [h, s, l];
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const hue2rgb = (p: number, q: number, t: number) => {
+    let tt = t;
+    if (tt < 0) tt += 1;
+    if (tt > 1) tt -= 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+
+  let r: number;
+  let g: number;
+  let b: number;
+
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  const toHex = (x: number) =>
+    Math.max(0, Math.min(255, Math.round(x * 255)))
+      .toString(16)
+      .padStart(2, '0');
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * Samples an image URL on a 32x32 offscreen canvas to extract a vibrant dominant accent color.
+ * Boosts saturation/lightness into an accessible UI range so buttons and text remain crisp.
+ */
+export async function extractVibrantColorFromImage(
+  imageSrc: string
+): Promise<string | null> {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return null;
+  }
+  if (!imageSrc || imageSrc === DEFAULT_HERO_IMAGE) {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.referrerPolicy = 'no-referrer';
+
+    const timeout = window.setTimeout(() => {
+      resolve(null);
+    }, 4500);
+
+    img.onload = () => {
+      window.clearTimeout(timeout);
+      try {
+        const canvas = document.createElement('canvas');
+        const size = 32;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(null);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+
+        // Bucket hues into 24 bins weighted by saturation and balanced lightness
+        const bins = Array.from({ length: 24 }, () => ({
+          weight: 0,
+          hSum: 0,
+          sSum: 0,
+          lSum: 0,
+        }));
+
+        let fallbackR = 0;
+        let fallbackG = 0;
+        let fallbackB = 0;
+        let validCount = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const a = data[i + 3];
+          if (a < 128) continue;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          const [h, s, l] = rgbToHsl(r, g, b);
+          // Skip extreme blacks and pure whites
+          if (l < 0.1 || l > 0.92) continue;
+
+          fallbackR += r;
+          fallbackG += g;
+          fallbackB += b;
+          validCount++;
+
+          if (s < 0.15) continue;
+
+          const binIdx = Math.min(23, Math.floor(h * 24));
+          // Favor vibrant mid-tone pixels
+          const lWeight = 1 - Math.abs(l - 0.52);
+          const w = s * s * Math.max(0.2, lWeight);
+          bins[binIdx].weight += w;
+          bins[binIdx].hSum += h * w;
+          bins[binIdx].sSum += s * w;
+          bins[binIdx].lSum += l * w;
+        }
+
+        let bestBin = bins[0];
+        for (const b of bins) {
+          if (b.weight > bestBin.weight) {
+            bestBin = b;
+          }
+        }
+
+        if (bestBin.weight > 0) {
+          const avgH = bestBin.hSum / bestBin.weight;
+          const avgS = Math.max(0.65, Math.min(0.92, bestBin.sSum / bestBin.weight));
+          const avgL = Math.max(0.46, Math.min(0.58, bestBin.lSum / bestBin.weight));
+          resolve(hslToHex(avgH, avgS, avgL));
+          return;
+        }
+
+        if (validCount > 0) {
+          const [fh, fs, fl] = rgbToHsl(
+            fallbackR / validCount,
+            fallbackG / validCount,
+            fallbackB / validCount
+          );
+          resolve(
+            hslToHex(
+              fh,
+              Math.max(0.55, fs),
+              Math.max(0.45, Math.min(0.58, fl))
+            )
+          );
+          return;
+        }
+
+        resolve(null);
+      } catch {
+        // Canvas tainted by CORS or decoding error
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => {
+      window.clearTimeout(timeout);
+      resolve(null);
+    };
+
+    img.src = imageSrc;
+  });
+}
+
 export const SEARCH_PROVIDERS: Record<
   SearchProviderId,
   { name: string; searchUrl: string; domain: string; shortcutHint: string }
@@ -149,6 +368,7 @@ export function createDefaultConfig(now: Date = new Date()): WingstConfig {
     appearance: {
       theme: 'dark',
       primaryColor: '#e11d48',
+      autoExtractAccent: false,
       customBgColor: null,
       customSurfaceColor: null,
       customBorderColor: null,
@@ -931,6 +1151,10 @@ export function validateAndMigrateConfig(
     appearance: {
       theme,
       primaryColor,
+      autoExtractAccent:
+        typeof rawApp.autoExtractAccent === 'boolean'
+          ? rawApp.autoExtractAccent
+          : false,
       customBgColor:
         typeof rawApp.customBgColor === 'string' ? rawApp.customBgColor : null,
       customSurfaceColor:

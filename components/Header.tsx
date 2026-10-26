@@ -14,6 +14,7 @@ import {
   Droplets,
   Navigation,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 import {
   LiquidOsConfig,
@@ -22,6 +23,7 @@ import {
   SearchProviderId,
 } from '@/lib/types';
 import {
+  ACCENT_PRESETS,
   SEARCH_PROVIDERS,
   buildSearchUrl,
   recordSearchQuery,
@@ -32,6 +34,10 @@ interface HeaderProps {
   onUpdateSearch: (next: SearchConfig) => void;
   liquidConfig: LiquidOsConfig;
   onUpdateLiquid: (next: LiquidOsConfig) => void;
+  primaryColor?: string;
+  autoExtractAccent?: boolean;
+  onUpdatePrimaryColor?: (hex: string) => void;
+  onToggleAutoExtractAccent?: () => void;
   locationCity: string;
   isSyncingGps: boolean;
   onTriggerGps: () => void;
@@ -65,6 +71,10 @@ export default function Header({
   onUpdateSearch,
   liquidConfig,
   onUpdateLiquid,
+  primaryColor = '#e11d48',
+  autoExtractAccent = false,
+  onUpdatePrimaryColor,
+  onToggleAutoExtractAccent,
   locationCity,
   isSyncingGps,
   onTriggerGps,
@@ -742,6 +752,57 @@ export default function Header({
                     />
                   </div>
                 </div>
+
+                {/* Quick Primary Accent Color & Auto-Accent from BG */}
+                {onUpdatePrimaryColor && (
+                  <div className="space-y-1.5 border-t border-[var(--border-subtle)] pt-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[var(--text-secondary)]">
+                        Nuansa Aksen Utama
+                      </span>
+                      {onToggleAutoExtractAccent && (
+                        <button
+                          type="button"
+                          data-testid="header-auto-accent-btn"
+                          onClick={onToggleAutoExtractAccent}
+                          className={`flex items-center gap-1 border px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                            autoExtractAccent
+                              ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                              : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                          }`}
+                          style={{ borderRadius: '4px' }}
+                        >
+                          <Sparkles className="h-2.5 w-2.5" />
+                          <span>Auto dari BG</span>
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {ACCENT_PRESETS.map((preset) => {
+                        const active =
+                          primaryColor.toLowerCase() === preset.hex.toLowerCase();
+                        return (
+                          <button
+                            key={preset.hex}
+                            type="button"
+                            data-testid={`header-accent-${preset.hex.slice(1)}`}
+                            title={preset.name}
+                            onClick={() => onUpdatePrimaryColor(preset.hex)}
+                            className={`h-5 w-5 border transition-transform ${
+                              active
+                                ? 'scale-110 border-white ring-1 ring-white'
+                                : 'border-white/25 hover:scale-105'
+                            }`}
+                            style={{
+                              backgroundColor: preset.hex,
+                              borderRadius: '4px',
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-between border-t border-[var(--border-subtle)] pt-2">
                   <button

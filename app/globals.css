@@ -12,6 +12,7 @@ html[data-theme="dark"] {
   --border-subtle: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.18);
   --accent-primary: #e11d48;
+  --accent-rgb: 225, 29, 72;
   --accent-foreground: #ffffff;
   --status-success: #10b981;
   --status-warning: #f59e0b;
@@ -38,6 +39,7 @@ html[data-theme="light"] {
   --border-subtle: rgba(9, 9, 11, 0.10);
   --border-strong: rgba(9, 9, 11, 0.20);
   --accent-primary: #e11d48;
+  --accent-rgb: 225, 29, 72;
   --accent-foreground: #ffffff;
   --status-success: #059669;
   --status-warning: #d97706;
@@ -111,11 +113,11 @@ body {
     box-shadow 180ms ease;
 }
 
-/* Subtle crimson corner glow on Editorial Solid & Frosted cards */
+/* Subtle dynamic accent corner glow on Editorial Solid & Frosted cards */
 html[data-theme="dark"] .wingst-surface {
   background-image: radial-gradient(
     circle at 100% 0%,
-    rgba(225, 29, 72, 0.07) 0%,
+    rgba(var(--accent-rgb, 225, 29, 72), 0.08) 0%,
     transparent 52%
   );
 }
@@ -127,7 +129,7 @@ html[data-liquid="frosted"] .wingst-surface {
     radial-gradient(
       120% 90% at 15% 0%,
       rgba(255, 255, 255, 0.07) 0%,
-      rgba(225, 29, 72, 0.06) 48%,
+      rgba(var(--accent-rgb, 225, 29, 72), 0.07) 48%,
       transparent 100%
     ),
     radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
@@ -155,7 +157,7 @@ html[data-liquid="clear"] .wingst-surface {
     135deg,
     rgba(255, 255, 255, 0.10) 0%,
     rgba(255, 255, 255, 0.02) 38%,
-    rgba(225, 29, 72, 0.07) 100%
+    rgba(var(--accent-rgb, 225, 29, 72), 0.08) 100%
   );
   -webkit-backdrop-filter: blur(var(--liquid-blur-clear, 12px)) saturate(190%) contrast(108%);
   backdrop-filter: blur(var(--liquid-blur-clear, 12px)) saturate(190%) contrast(108%);
@@ -163,7 +165,7 @@ html[data-liquid="clear"] .wingst-surface {
   box-shadow:
     0 18px 42px -10px rgba(0, 0, 0, 0.65),
     inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.32),
-    inset 0 -1px 2px 0 rgba(225, 29, 72, 0.18);
+    inset 0 -1px 2px 0 rgba(var(--accent-rgb, 225, 29, 72), 0.22);
 }
 
 html[data-theme="light"][data-liquid="clear"] .wingst-surface {
@@ -177,7 +179,7 @@ html[data-liquid="blur"] .wingst-surface {
   background-image: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.05) 0%,
-    rgba(225, 29, 72, 0.04) 100%
+    rgba(var(--accent-rgb, 225, 29, 72), 0.05) 100%
   );
   -webkit-backdrop-filter: blur(var(--liquid-blur-blur, 32px)) brightness(1.04) saturate(135%);
   backdrop-filter: blur(var(--liquid-blur-blur, 32px)) brightness(1.04) saturate(135%);
@@ -196,7 +198,7 @@ html[data-liquid="lite"] .wingst-surface {
   background-image: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.03) 0%,
-    rgba(225, 29, 72, 0.025) 100%
+    rgba(var(--accent-rgb, 225, 29, 72), 0.035) 100%
   );
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
@@ -229,13 +231,13 @@ html[data-theme="light"][data-liquid="blur"] .wingst-elevated {
   background-color: rgba(255, 255, 255, 0.85);
 }
 
-/* Editorial Crimson Gradient Bar (Reference Image 1: 51% — 2044 style) */
+/* Editorial Dynamic Accent Gradient Bar (Reference Image 1: 51% — 2044 style) */
 .wingst-crimson-bar {
   background: linear-gradient(
     90deg,
     var(--accent-primary) 0%,
-    rgba(190, 18, 60, 0.75) 55%,
-    rgba(136, 19, 55, 0.12) 100%
+    rgba(var(--accent-rgb, 225, 29, 72), 0.75) 55%,
+    rgba(var(--accent-rgb, 225, 29, 72), 0.16) 100%
   );
 }
 

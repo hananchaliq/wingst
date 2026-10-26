@@ -14,6 +14,7 @@ import {
   evaluatePrayerStatus,
   validateAndMigrateConfig,
   getFaviconSources,
+  hexToRgbChannels,
 } from './wingst-core';
 
 test('default config starts with static image background, fixed attachment, Liquid OS Frosted, and empty daily activity', () => {
@@ -202,5 +203,25 @@ test('validateAndMigrateConfig preserves liteMode, focusTarget, and visualizerEn
   );
   assert.equal(migrated.config.music.visualizerEnabled, false);
 });
+
+test('hexToRgbChannels converts hex colors into RGB triplets and preserves autoExtractAccent in migration', () => {
+  assert.equal(hexToRgbChannels('#e11d48'), '225, 29, 72');
+  assert.equal(hexToRgbChannels('#2563eb'), '37, 99, 235');
+  assert.equal(hexToRgbChannels('#059669'), '5, 150, 105');
+  assert.equal(hexToRgbChannels('#f00'), '255, 0, 0');
+  assert.equal(hexToRgbChannels('invalid'), '225, 29, 72');
+
+  const migrated = validateAndMigrateConfig({
+    appearance: {
+      theme: 'dark',
+      primaryColor: '#2563eb',
+      autoExtractAccent: true,
+    },
+  });
+  assert.equal(migrated.valid, true);
+  assert.equal(migrated.config.appearance.primaryColor, '#2563eb');
+  assert.equal(migrated.config.appearance.autoExtractAccent, true);
+});
+
 
 

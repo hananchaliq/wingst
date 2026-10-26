@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Eye } from 'lucide-react';
 import { LiquidOsConfig, WingstConfig } from '@/lib/types';
-import { createDefaultConfig, reconcileDailyActivityDay } from '@/lib/wingst-core';
+import {
+  DEFAULT_HERO_IMAGE,
+  createDefaultConfig,
+  extractVibrantColorFromImage,
+  hexToRgbChannels,
+  reconcileDailyActivityDay,
+} from '@/lib/wingst-core';
 import { loadWingstConfig, saveWingstConfig } from '@/lib/storage';
 import { detectGpsAndResolveLocation } from '@/lib/api-clients';
 import Header from '@/components/Header';
@@ -24,6 +30,12 @@ export default function WingstPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('appearance');
   const [extensionModalOpen, setExtensionModalOpen] = useState(false);
+  const [resolvedBgUrl, setResolvedBgUrl] = useState<string>(DEFAULT_HERO_IMAGE);
+  const latestConfigRef = useRef<WingstConfig>(config);
+
+  useEffect(() => {
+    latestConfigRef.current = config;
+  }, [config]);
 
   // Hydrate configuration from local storage / chrome.storage.local on mount
   useEffect(() => {
@@ -88,6 +100,10 @@ export default function WingstPage() {
     root.style.setProperty('--radius-control', `${radiusControl}px`);
 
     root.style.setProperty('--accent-primary', config.appearance.primaryColor);
+    root.style.setProperty(
+      '--accent-rgb',
+      hexToRgbChannels(config.appearance.primaryColor)
+    );
     root.style.setProperty('--focus-ring', config.appearance.primaryColor);
 
     if (config.appearance.customBgColor) {
@@ -138,6 +154,97 @@ export default function WingstPage() {
     });
   };
 
+  const extractAndApplyBgAccent = useCallback(
+    async (targetUrl?: string, forceEnableAuto?: boolean) => {
+      const current = latestConfigRef.current;
+      const src = targetUrl || resolvedBgUrl || current.background.mediaUrl;
+      if (current.background.type === 'solid') {
+        const solidHex = current.background.solidColor || '#e11d48';
+        const nextCfg: WingstConfig = {
+          ...current,
+          appearance: {
+            ...current.appearance,
+            primaryColor: solidHex,
+            autoExtractAccent:
+              forceEnableAuto !== undefined
+                ? forceEnableAuto
+                : current.appearance.autoExtractAccent,
+          },
+        };
+        setConfig(nextCfg);
+        await saveWingstConfig(nextCfg);
+        return;
+      }
+
+      if (!src || src === DEFAULT_HERO_IMAGE) {
+        if (forceEnableAuto !== undefined) {
+          const nextCfg: WingstConfig = {
+            ...current,
+            appearance: {
+              ...current.appearance,
+              autoExtractAccent: forceEnableAuto,
+            },
+          };
+          setConfig(nextCfg);
+          await saveWingstConfig(nextCfg);
+        }
+        return;
+      }
+
+      const extracted = await extractVibrantColorFromImage(src);
+      const latest = latestConfigRef.current;
+      if (extracted) {
+        const nextCfg: WingstConfig = {
+          ...latest,
+          appearance: {
+            ...latest.appearance,
+            primaryColor: extracted,
+            autoExtractAccent:
+              forceEnableAuto !== undefined
+                ? forceEnableAuto
+                : latest.appearance.autoExtractAccent,
+          },
+        };
+        setConfig(nextCfg);
+        await saveWingstConfig(nextCfg);
+      } else if (forceEnableAuto !== undefined) {
+        const nextCfg: WingstConfig = {
+          ...latest,
+          appearance: {
+            ...latest.appearance,
+            autoExtractAccent: forceEnableAuto,
+          },
+        };
+        setConfig(nextCfg);
+        await saveWingstConfig(nextCfg);
+      }
+    },
+    [resolvedBgUrl]
+  );
+
+  // Automatically extract accent when autoExtractAccent is enabled and background image changes
+  useEffect(() => {
+    if (!hydrated || !config.appearance.autoExtractAccent) return;
+    if (
+      config.background.type !== 'image' &&
+      config.background.type !== 'gif'
+    ) {
+      return;
+    }
+    if (!resolvedBgUrl || resolvedBgUrl === DEFAULT_HERO_IMAGE) return;
+
+    const timer = window.setTimeout(() => {
+      void extractAndApplyBgAccent(resolvedBgUrl);
+    }, 60);
+    return () => window.clearTimeout(timer);
+  }, [
+    hydrated,
+    config.appearance.autoExtractAccent,
+    config.background.type,
+    resolvedBgUrl,
+    extractAndApplyBgAccent,
+  ]);
+
   const handleTriggerGps = async () => {
     setIsSyncingGps(true);
     setStorageError(null);
@@ -187,6 +294,32 @@ export default function WingstPage() {
         }
         liquidConfig={config.appearance.liquid}
         onUpdateLiquid={handleUpdateLiquid}
+        primaryColor={config.appearance.primaryColor}
+        autoExtractAccent={Boolean(config.appearance.autoExtractAccent)}
+        onUpdatePrimaryColor={(hex) =>
+          handleUpdateConfig({
+            ...config,
+            appearance: {
+              ...config.appearance,
+              primaryColor: hex,
+              autoExtractAccent: false,
+            },
+          })
+        }
+        onToggleAutoExtractAccent={() => {
+          const nextAuto = !config.appearance.autoExtractAccent;
+          if (nextAuto) {
+            void extractAndApplyBgAccent(resolvedBgUrl, true);
+          } else {
+            void handleUpdateConfig({
+              ...config,
+              appearance: {
+                ...config.appearance,
+                autoExtractAccent: false,
+              },
+            });
+          }
+        }}
         locationCity={config.location.city}
         isSyncingGps={isSyncingGps}
         onTriggerGps={handleTriggerGps}
@@ -235,6 +368,7 @@ export default function WingstPage() {
         isEditingLayout={isEditingLayout}
         isPeekingCanvas={isPeekingCanvas}
         onTogglePeekCanvas={() => setIsPeekingCanvas((v) => !v)}
+        onResolvedMediaUrl={setResolvedBgUrl}
       />
 
       {/* Modular Mosaic Workspace (No opacity/transform wrapper when visible so Liquid OS backdrop-filter samples fixed BG directly) */}
@@ -314,6 +448,9 @@ export default function WingstPage() {
         onUpdateConfig={handleUpdateConfig}
         onTriggerGps={handleTriggerGps}
         isSyncingGps={isSyncingGps}
+        onExtractBgAccent={() => {
+          void extractAndApplyBgAccent(resolvedBgUrl, true);
+        }}
       />
 
       {/* Chrome Extension Inspector Modal */}

@@ -35,6 +35,7 @@ import {
   WingstConfig,
 } from '@/lib/types';
 import {
+  ACCENT_PRESETS,
   clampModuleSpan,
   createDefaultConfig,
   createDefaultLayout,
@@ -74,16 +75,8 @@ interface SettingsModalProps {
   onUpdateConfig: (next: WingstConfig) => void;
   onTriggerGps?: () => void;
   isSyncingGps?: boolean;
+  onExtractBgAccent?: () => void;
 }
-
-const ACCENT_PRESETS = [
-  { name: 'Wingst Crimson', hex: '#e11d48' },
-  { name: 'Signal Vermilion', hex: '#ea580c' },
-  { name: 'Cobalt Precision', hex: '#2563eb' },
-  { name: 'Cyan Telemetry', hex: '#0284c7' },
-  { name: 'Emerald Field', hex: '#059669' },
-  { name: 'Amber Gold', hex: '#d97706' },
-];
 
 const LIQUID_MODE_CARDS: {
   id: LiquidVariant;
@@ -140,6 +133,7 @@ export default function SettingsModal({
   onUpdateConfig,
   onTriggerGps,
   isSyncingGps = false,
+  onExtractBgAccent,
 }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
   const [tabFilter, setTabFilter] = useState('');
@@ -742,11 +736,81 @@ export default function SettingsModal({
                   </div>
                 </div>
 
-                {/* Primary Accent Color */}
-                <div className="space-y-2">
-                  <label className="block font-semibold text-[var(--text-primary)]">
-                    Primary Accent Color
-                  </label>
+                {/* Primary Accent Color & Auto-Accent from BG */}
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <label className="block font-semibold text-[var(--text-primary)]">
+                        Primary Accent Color (Semua Kaca Liquid, Vignette Hero & Panel Mengikuti Nuansa Ini)
+                      </label>
+                      <p className="text-[11px] text-[var(--text-muted)]">
+                        Mengubah warna aksen utama, bias kaca Liquid OS (Frosted/Clear/Blur), radial vignette Hero, dan progress bar.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Auto-Accent from Wallpaper Card */}
+                  <div
+                    className="flex flex-wrap items-center justify-between gap-3 border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/70 p-3"
+                    style={{ borderRadius: 'var(--radius-control)' }}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
+                        <Sparkles className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
+                        <span>Auto-Accent dari Gambar Background</span>
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)]">
+                        Otomatis mengekstrak warna dominan yang hidup dari gambar latar belakang aktif menjadi Primary Color.
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {onExtractBgAccent && (
+                        <button
+                          type="button"
+                          data-testid="settings-extract-bg-accent-btn"
+                          onClick={() => {
+                            onExtractBgAccent();
+                            notify(
+                              'success',
+                              'Mengekstrak warna dominan dari latar belakang...'
+                            );
+                          }}
+                          className="border border-[var(--border-strong)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
+                          style={{ borderRadius: 'var(--radius-control)' }}
+                        >
+                          Ambil Warna BG Sekarang
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        data-testid="settings-auto-accent-toggle"
+                        onClick={() => {
+                          const nextVal = !config.appearance.autoExtractAccent;
+                          onUpdateConfig({
+                            ...config,
+                            appearance: {
+                              ...config.appearance,
+                              autoExtractAccent: nextVal,
+                            },
+                          });
+                          if (nextVal && onExtractBgAccent) {
+                            onExtractBgAccent();
+                          }
+                        }}
+                        className={`border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          config.appearance.autoExtractAccent
+                            ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)] text-white'
+                            : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)]'
+                        }`}
+                        style={{ borderRadius: 'var(--radius-control)' }}
+                      >
+                        {config.appearance.autoExtractAccent
+                          ? 'Auto-Accent: ON'
+                          : 'Auto-Accent: OFF'}
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="flex flex-wrap items-center gap-2">
                     {ACCENT_PRESETS.map((preset) => (
                       <button
@@ -758,6 +822,7 @@ export default function SettingsModal({
                             appearance: {
                               ...config.appearance,
                               primaryColor: preset.hex,
+                              autoExtractAccent: false,
                             },
                           })
                         }
@@ -789,6 +854,7 @@ export default function SettingsModal({
                             appearance: {
                               ...config.appearance,
                               primaryColor: e.target.value,
+                              autoExtractAccent: false,
                             },
                           })
                         }
